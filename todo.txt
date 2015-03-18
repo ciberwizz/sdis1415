@@ -1,0 +1,45 @@
+Class Communication
+	- testar
+
+Class Message
+	- message // putchunk etcc
+	- chunk
+	- timeElapsed()
+		
+Class Chunck
+	- file_id
+	- chunk_id
+	- rep_degree
+	- path
+	
+	- bytes[] getData() // ler de ficheiro
+	- string toString() // construir mensagem pronta a enviar
+	- void save() // save file o FileSystem
+	
+Class Config // bd
+	- Espaço ocupado e espaço disponivel
+	- ficheiros nossos ( completos )
+		- adiconar ficheiros
+			- dividir o ficheiro em chunks 64KB
+		- remover
+	- chunks 
+		- nossos
+		- recebidos
+		- replication degree de cada
+		
+	- restoreFile() // pega em todos os chunks de um file id nossso e cria ficheiro
+		- testar com imagens, pois é facil ver se dá erro
+	
+	exemplo config.csv
+	
+	espaço_ocupado, espaço_reservado
+	path_para_nosso_ficheiro, file_id, rep_degree_desejado, rep_degree_real
+	.
+	.
+	.
+	chunks
+	file_id, chunk_id, path, rep_degree
+	.
+	.
+	.
+	
