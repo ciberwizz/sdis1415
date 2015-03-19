@@ -1,6 +1,7 @@
 Class Communication
-	- testar
-
+	- send - testado
+	- receive - testado
+	
 Class Message
 	- message // putchunk etcc
 	- chunk
