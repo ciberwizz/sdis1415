@@ -1,3 +1,4 @@
+package main;
 
 
 import java.io.IOException;
@@ -11,15 +12,10 @@ import java.net.MulticastSocket;
 
 public class Communication {
 
-	public static int MAX_SIZE = 1024; //TODO verificar qual o tamanho maximo de um chunk
+	public static int MAX_SIZE = 64*1024; //TODO verificar qual o tamanho maximo de um chunk
 
 	private	String channel = new String();
 	private int port;
-
-	public static void main(String[] args) {
-		// TODO TESTAR
-
-	}
 
 	public Communication(String ch, int ports){
 		this.channel = ch;
@@ -37,7 +33,7 @@ public class Communication {
 					channel_inet, port);
 			sendSocket.send(msgPacket);
 
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 
 		}
@@ -65,5 +61,6 @@ public class Communication {
 
 		return data;
 	}
+
 
 }
