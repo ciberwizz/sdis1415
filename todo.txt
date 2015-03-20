@@ -31,16 +31,16 @@ Class Config // bd
 	- restoreFile() // pega em todos os chunks de um file id nossso e cria ficheiro
 		- testar com imagens, pois é facil ver se dá erro
 	
-	exemplo config.csv
-	
-	espaço_ocupado, espaço_reservado
-	path_para_nosso_ficheiro, file_id, rep_degree_desejado, rep_degree_real
-	.
-	.
-	.
-	chunks
-	file_id, chunk_id, path, rep_degree
-	.
-	.
-	.
-	
+		exemplo config.csv
+		
+		espaço_ocupado, espaço_reservado
+		path_para_nosso_ficheiro, file_id, rep_degree_desejado, rep_degree_real
+		.
+		.
+		.
+		chunks
+		file_id, chunk_id, path, rep_degree
+		.
+		.
+		.
+		
