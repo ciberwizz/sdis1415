@@ -1,7 +1,8 @@
 package main;
 
 public class Message {
-
+	public static String CRLF = "\r\n";
+	
 	private String type = new String();
 	private String fileId = new String();
 	private String chunkNr = new String();
@@ -15,8 +16,46 @@ public class Message {
 		repDegree = _repDegree;
 		//TODO chunk = _chunk;
 	}
+	
+	
+	//parse what is received by communication class
+	public Message(byte[] data){
+		
+	}
 
-	public String toString(){
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getFileId() {
+		return fileId;
+	}
+
+	public void setFileId(String fileId) {
+		this.fileId = fileId;
+	}
+
+	public String getChunkNr() {
+		return chunkNr;
+	}
+
+	public void setChunkNr(String chunkNr) {
+		this.chunkNr = chunkNr;
+	}
+
+	public int getRepDegree() {
+		return repDegree;
+	}
+
+	public void setRepDegree(int repDegree) {
+		this.repDegree = repDegree;
+	}
+
+	public String getHeader() throws Exception{
 
 		String str = new String( fileId + " " + chunkNr );
 		
@@ -24,41 +63,32 @@ public class Message {
 
 		case "PUTCHUNK":
 			
-			str = "PUTCHUNK " + str + " " + repDegree; //TODO + " " + chunk.getDados() 
+			str = "PUTCHUNK " + "1.0 " + str + " " + repDegree + " " + CRLF + CRLF; //TODO + chunk.getDados() 
 
 			break;
 
 		case "GETCHUNK":
-			
-			str = "GETCHUNK " + str;
-			
-			break;
-
 		case "STORED":
+		case "REMOVED":
 
-			str = "STORED " + str;
-			
-			break;
-
-		case "REMOVE":
-
-			str = "REMOVE " + str;
+			str = type + " " + "1.0 " + str + " " + CRLF + CRLF;
 			
 			break;
 
 		case "DELETE":
 
-			str = "DELETE " + fileId;
+			str = "DELETE " + "1.0 " + fileId + " " + CRLF + CRLF;
 			
 			break;
 
 		case "CHUNK":
 			
-			str = "CHUNK " + str; //TODO + " " + chunk.getDados();
+			str = "CHUNK " + "1.0 " + str + " " + CRLF + CRLF; //TODO + chunk.getDados();
 			break;
 		default:
 
 			System.err.println("ERROR: wrong message type in Comunication class");
+			throw new Exception("ERROR: wrong message type in Comunication class");
 
 		}
 		
