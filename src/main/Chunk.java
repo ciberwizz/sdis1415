@@ -1,3 +1,5 @@
+package main;
+
 public class Chunk {
     private String chunkId = new String();
     private String fileId = new String();
