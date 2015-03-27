@@ -103,7 +103,7 @@ public class Parser {
 		List list = csv.parse(strat, csvReader);
 		for (Object object : list) {
 			Chunk chunk = (Chunk) object;
-			System.out.println(chunk.getChunkId());
+			System.out.println(chunk.getChunkNr());
 		}
 	}
 }

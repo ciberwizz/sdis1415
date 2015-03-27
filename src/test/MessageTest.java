@@ -10,7 +10,7 @@ public class MessageTest {
 	@Test
 	public void ToString() {
 		String crlf = Message.CRLF;
-		Message msg = new Message("PUTCHUNK","sha5","5",3 );
+		Message msg = new Message("PUTCHUNK","sha5",5,3 );
 		try{
 		assertEquals("PUTCHUNK 1.0 sha5 5 3 "+ crlf+crlf ,msg.getHeader());
 		
@@ -33,6 +33,7 @@ public class MessageTest {
 		}
 		
 		//TODO give wrong type
+
 
 	}
 

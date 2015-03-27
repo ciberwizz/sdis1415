@@ -5,16 +5,26 @@ public class Message {
 	
 	private String type = new String();
 	private String fileId = new String();
-	private String chunkNr = new String();
+	private int chunkNr;
 	private int repDegree;
-	//TODO private Chunk chunk;
+	private Chunk chunk;
 
-	public Message(String _type, String _fileId, String _chunkNr, int _repDegree/*TODO , Chunk _chunk*/){
+	public Message(String _type, String _fileId, int _chunkNr, int _repDegree/*TODO , Chunk _chunk*/){
 		type = _type;
 		fileId = _fileId;
 		chunkNr = _chunkNr;
 		repDegree = _repDegree;
 		//TODO chunk = _chunk;
+	}
+	
+	public Message(String _type, Chunk ch){
+		chunk = ch;
+		
+		type = _type;
+		fileId = ch.getFileId();
+		chunkNr = ch.getChunkNr();
+		repDegree = ch.getRepDegree();
+		
 	}
 	
 	
@@ -39,11 +49,11 @@ public class Message {
 		this.fileId = fileId;
 	}
 
-	public String getChunkNr() {
+	public int getChunkNr() {
 		return chunkNr;
 	}
 
-	public void setChunkNr(String chunkNr) {
+	public void setChunkNr(int chunkNr) {
 		this.chunkNr = chunkNr;
 	}
 

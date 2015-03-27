@@ -1,25 +1,25 @@
 package main;
 
 public class Chunk {
-    private String chunkId = new String();
+    private int chunkNr;
     private String fileId = new String();
     private String path = new String();
     private int repDegree;
 
 
-   /* public Chunk(String _chunkId, String _fileId, String _path, int _repDegree){
-        chunkId = _chunkId;
+    public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree){
+        chunkNr = _chunkNr;
         fileId = _fileId;
         path = _path;
         repDegree = _repDegree;
-    }*/
+    }
 
-	public String getChunkId() {
-		return chunkId;
+	public int getChunkNr() {
+		return chunkNr;
 	}
 
-	public void setChunkId(String chunkId) {
-		this.chunkId = chunkId;
+	public void setChunkNr(int chunkNr) {
+		this.chunkNr = chunkNr;
 	}
 
 	public String getFileId() {
