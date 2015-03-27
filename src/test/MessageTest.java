@@ -33,7 +33,13 @@ public class MessageTest {
 		}
 		
 		//TODO give wrong type
-
+		try{
+			msg.setType("PUTCHUNK2");
+			assertNotEquals("PUTCHUNK 1.0 sha5 5 3 "+ crlf+crlf ,msg.getHeader());
+			
+		}catch( Exception e){
+			return;
+		}
 
 	}
 
