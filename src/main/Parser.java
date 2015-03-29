@@ -79,8 +79,8 @@ public class Parser {
 		CSVWriter writer = new CSVWriter(new FileWriter(csv));
 
 		List<String[]> data = new ArrayList<String[]>();
-		data.add(new String[] { "Chunk1", "File1" });
-		data.add(new String[] { "Chunk2", "File2" });
+		data.add(new String[] { "1", "File1" });
+		data.add(new String[] { "2", "File2" });
 
 		writer.writeAll(data);
 		System.out.println("CSV written successfully.");

@@ -1,6 +1,7 @@
 package test;
 
 import static org.junit.Assert.*;
+import main.Chunk;
 import main.Message;
 
 import org.junit.Test;
@@ -8,7 +9,7 @@ import org.junit.Test;
 public class MessageTest {
 
 	@Test
-	public void ToString() {
+	public void getHeader() {
 		String crlf = Message.CRLF;
 		Message msg = new Message("PUTCHUNK","sha5",5,3 );
 		try{
@@ -32,7 +33,6 @@ public class MessageTest {
 			fail("failed: " + e.getMessage());
 		}
 		
-		//TODO give wrong type
 		try{
 			msg.setType("PUTCHUNK2");
 			assertNotEquals("PUTCHUNK 1.0 sha5 5 3 "+ crlf+crlf ,msg.getHeader());
@@ -46,10 +46,18 @@ public class MessageTest {
 	@Test
 	public void dataContructor(){
 		fail("Not yet implemented");
+		
+		//TODO check if any crlf char is presant,
+		//TODO check if all chars are there
 	}
 	
 	@Test
 	public void toByte(){
-		fail("Not yet implemented");
+		Chunk ch = new Chunk(1, "Sdaas", "chunks/", 1);
+		Message msg = new Message("PUTCHUNK",ch );
+		
+		
+		assertNotNull(ch.readFromFile());
+		assert(msg.getData().length > 0);
 	}
 }

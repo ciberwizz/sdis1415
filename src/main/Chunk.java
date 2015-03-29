@@ -5,13 +5,14 @@ public class Chunk {
     private String fileId = new String();
     private String path = new String();
     private int repDegree;
+    private byte[] data;
 
-
-    public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree){
+	public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree){
         chunkNr = _chunkNr;
         fileId = _fileId;
         path = _path;
         repDegree = _repDegree;
+        data = null;
     }
 
 	public int getChunkNr() {
@@ -44,5 +45,22 @@ public class Chunk {
 
     public void setFileId(int repDegree) {
         this.repDegree = repDegree;
+    }
+    
+    public void setData(byte[] data) {
+		this.data = data;
+	}
+    
+    public byte[] getData(){
+    	return this.data;
+    }
+    
+    public void saveToFile(){
+    	//TODO saveToFile(){
+    }
+    
+    public byte[] readFromFile(){
+    	//TODO readFromFile(){
+    	return null;
     }
 }
