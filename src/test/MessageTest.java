@@ -45,10 +45,17 @@ public class MessageTest {
 
 	@Test
 	public void dataContructor(){
-		fail("Not yet implemented");
+		String message1 = "PUTCHUNK 1.0 sha5 5 3 "+ Message.CRLF+ Message.CRLF+"ola"; 
+		Message msg1 = new Message(message1.getBytes()); 
 		
-		//TODO check if any crlf char is presant,
-		//TODO check if all chars are there
+		
+		try {
+			
+			String v = new String(msg1.getData());
+			assert(message1.equals(v));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test
@@ -58,6 +65,6 @@ public class MessageTest {
 		
 		
 		assertNotNull(ch.readFromFile());
-		assert(msg.getData().length > 0);
+		assert((new String(msg.getData()).equals("PUTCHUNK 1.0 Sdaas 1 1 "+ Message.CRLF+ Message.CRLF)));
 	}
 }

@@ -61,8 +61,8 @@ public class Message {
 
 		}
 
-		//if found is 0 then its because message doesnt have a body
-		if(found == 0){
+		//if found is 4 then its because message doesnt have a body
+		if(found == 4){
 			sheader.write(data, 0, data.length -4);
 			body = new byte[0];
 		} else {

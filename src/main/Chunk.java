@@ -61,6 +61,10 @@ public class Chunk {
     
     public byte[] readFromFile(){
     	//TODO readFromFile(){
-    	return null;
+    	
+    	if(data != null){
+    		return data;
+    	} else
+    		return null;
     }
 }
