@@ -19,7 +19,7 @@ public class Message {
 		fileId = _fileId;
 		chunkNr = _chunkNr;
 		repDegree = _repDegree;
-		//TODO chunk = _chunk;
+		chunk = new Chunk(_chunkNr, _fileId, "", _repDegree);
 	}
 
 	public Message(String _type, Chunk ch){

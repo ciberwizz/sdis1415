@@ -64,7 +64,13 @@ public class Chunk {
     	
     	if(data != null){
     		return data;
-    	} else
-    		return null;
+    	} else {
+    		
+    		if(path.equals("")){
+    			return path.getBytes();
+    		} else
+    			return null;
+    		
+    	}
     }
 }
