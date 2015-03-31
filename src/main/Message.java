@@ -1,9 +1,6 @@
 package main;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.GregorianCalendar;
 
 public class Message {
 	public static String CRLF = "\r\n";
