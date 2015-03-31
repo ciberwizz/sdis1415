@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
+	
+	/*
 	public static void main(String[] args) {
 
 		try {
@@ -28,7 +30,7 @@ public class Parser {
 			e.printStackTrace();
 		}
 	}
-
+*/
 /*	private static void readLineByLine() throws IOException {
 		System.out.println("\n**** Read Line By Line ****");
 		String csvFilename = "csv\\chunks.csv";

@@ -44,3 +44,29 @@ Class Config // bd
 		.
 		.
 		
+class ThChannelRecv
+	- Classe generica que recebe de uma dado canal e porta e põe os pedidos numa 
+	concurrentLinkedQueue
+	
+Class Distributed
+	- main : cria as threads e chama uma função que orienta os pedidos
+		- verifica do
+			- inMC 
+				- stored - verificar se é para nos e 
+									se for actualizar o count de rep degree 
+				- getchunk - verificar se temos o chunk que é pedido e 
+									enviar se preciso
+				- delete - verificar se temos os chunks com esse fileid, 
+									se tivvermos apagar todos
+				- removed - verifcar se é nosso, 
+									se for verificar 
+											se o rep degree continua a ser respeitado
+													se não for enviar putchunk
+														
+	
+ 
+			- inMDB
+				- putchunk - verificar se temos espaço para gastar
+									se tivermos eviar o stored
+									
+									
