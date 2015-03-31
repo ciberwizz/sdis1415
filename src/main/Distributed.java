@@ -48,6 +48,29 @@ public class Distributed {
 					//getchunk
 					//delete
 					//removed
+				
+				switch(temp.getType() ){
+
+				case "STORED":
+					
+					break;
+					
+				case "GETCHUNK":
+					
+					break;
+					
+				case "DELETE":
+					
+					break;
+					
+				case "REMOVED":
+					
+					break;
+				
+					
+					default:
+						
+				}
 			}
 
 
@@ -58,6 +81,11 @@ public class Distributed {
 			if(temp != null){
 				//check
 					//putchunk
+				
+				if(temp.getType().equals("PUTCHUNK")){
+					
+				}
+				
 			}
 
 
@@ -69,6 +97,10 @@ public class Distributed {
 			if(temp != null){
 				//check
 					//chunk
+				
+				if(temp.getType().equals("CHUNK")){
+					
+				}
 			}
 
 
