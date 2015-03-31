@@ -3,6 +3,8 @@ package main;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Distributed {
+	
+	public static Config config = new Config();
 
 	public static void main(String[] args) {
 
