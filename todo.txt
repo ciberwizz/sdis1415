@@ -50,23 +50,34 @@ class ThChannelRecv
 	
 Class Distributed
 	- main : cria as threads e chama uma função que orienta os pedidos
-		- verifica do
+		- verificacao do
 			- inMC 
 				- stored - verificar se é para nos e 
 									se for actualizar o count de rep degree 
+
 				- getchunk - verificar se temos o chunk que é pedido e 
-									enviar se preciso
+									esperar 0-400ms 
+									verificar se foi recebido algum chunk correspondente
+										se nao, enviar
+									
+									
 				- delete - verificar se temos os chunks com esse fileid, 
 									se tivvermos apagar todos
+
 				- removed - verifcar se é nosso, 
-									se for verificar 
-											se o rep degree continua a ser respeitado
-													se não for enviar putchunk
+									o rep degree continua a ser respeitado
+										se não for enviar putchunk
 														
-	
- 
 			- inMDB
 				- putchunk - verificar se temos espaço para gastar
-									se tivermos eviar o stored
+									se tivermos eviar o stored e guardar no config e fazer save
+
+			- inMDR
+				- chunk - verificar se é para nós (resposta a um getchunk nosso)
+									se for mandar para o config e fazer save  
+						- se não
+									verificar se temos o chunk em questao ( se potencialmente iriamos mandar o chunk)
+											-guardar o timestamp a que foi mandado para
+											o caso de formos responder ao getchunk de terceiros.
 									
 									
