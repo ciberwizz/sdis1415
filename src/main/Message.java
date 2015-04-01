@@ -9,14 +9,19 @@ public class Message {
 	private String fileId = new String();
 	private int chunkNr;
 	private int repDegree;
+    private int objectiveRepDegree;
 	private Chunk chunk;
+	private long arriveTime;
+	private long objectiveTime;
 
 	public Message(String _type, String _fileId, int _chunkNr, int _repDegree/*TODO , Chunk _chunk*/){
 		type = _type;
 		fileId = _fileId;
 		chunkNr = _chunkNr;
-		repDegree = _repDegree;
+		repDegree = objectiveRepDegree = _repDegree;
 		chunk = new Chunk(_chunkNr, _fileId, "", _repDegree);
+		arriveTime = System.currentTimeMillis();
+		objectiveTime = 0;
 	}
 
 	public Message(String _type, Chunk ch){
@@ -25,13 +30,17 @@ public class Message {
 		type = _type;
 		fileId = ch.getFileId();
 		chunkNr = ch.getChunkNr();
-		repDegree = ch.getRepDegree();
-
+		objectiveRepDegree = repDegree = ch.getRepDegree();
+		arriveTime = System.currentTimeMillis();
+		objectiveTime = 0;
 	}
 
 
 	//parse what is received by communication class
 	public Message(byte[] data){
+		
+		arriveTime = System.currentTimeMillis();
+		objectiveTime = 0;
 
 		ByteArrayOutputStream sheader = new ByteArrayOutputStream();
 		ByteArrayOutputStream sbody = new ByteArrayOutputStream();
@@ -84,14 +93,14 @@ public class Message {
 
 			this.fileId = temp[2];
 			this.chunkNr = 0;	
-			this.repDegree = 0;
+			this.repDegree = objectiveRepDegree  = 0;
 			break;
 			
 		case "PUTCHUNK":
 			
 			this.fileId = temp[2];
 			this.chunkNr = Integer.parseInt(temp[3]);
-			this.repDegree = Integer.parseInt(temp[4]);
+			this.repDegree = objectiveRepDegree  = Integer.parseInt(temp[4]);
 			
 			break;
 			
@@ -99,7 +108,7 @@ public class Message {
 
 			this.fileId = temp[2];
 			this.chunkNr = Integer.parseInt(temp[3]);
-			this.repDegree = 0;
+			this.repDegree = objectiveRepDegree  = 0;
 
 			break;
 		}
@@ -144,6 +153,14 @@ public class Message {
 
 	public void setRepDegree(int repDegree) {
 		this.repDegree = repDegree;
+	}
+
+	public int getObjectiveRepDegree() {
+		return objectiveRepDegree;
+	}
+
+	public void setObjectiveRepDegree(int objectiveRepDegree) {
+		this.objectiveRepDegree = objectiveRepDegree;
 	}
 
 	public String getHeader() throws Exception{
@@ -201,6 +218,34 @@ public class Message {
 
 		return output.toByteArray();
 
+	}
+	
+	public long getArriveTime() {
+		return arriveTime;
+	}
+
+	public void setArriveTime(long arriveTime) {
+		this.arriveTime = arriveTime;
+	}
+
+	public long getObjectiveTime() {
+		return objectiveTime;
+	}
+
+	public void setObjectiveTime(long objectiveTime) {
+		this.objectiveTime = objectiveTime;
+	}
+
+	public long getElapsed(){		
+		return this.arriveTime - System.currentTimeMillis();						
+	}
+	
+	public boolean isTime(){
+		return (getElapsed() >= this.objectiveTime ? true : false);
+	}
+	
+	public void incRepDegree(){
+		this.repDegree++;
 	}
 
 }

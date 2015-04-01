@@ -5,6 +5,7 @@ public class Chunk {
     private String fileId = new String();
     private String path = new String();
     private int repDegree;
+    private int objectiveRepDegree;
     private byte[] data;
 
 	public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree){
@@ -12,6 +13,7 @@ public class Chunk {
         fileId = _fileId;
         path = _path;
         repDegree = _repDegree;
+        objectiveRepDegree = _repDegree;
         data = null;
     }
 
@@ -43,7 +45,19 @@ public class Chunk {
         return repDegree;
     }
 
-    public void setFileId(int repDegree) {
+	public void setRepDegree(int repDegree) {
+		this.repDegree = repDegree;
+	}
+
+    public int getObjectiveRepDegree() {
+		return objectiveRepDegree;
+	}
+
+	public void setObjectiveRepDegree(int objectiveRepDegree) {
+		this.objectiveRepDegree = objectiveRepDegree;
+	}
+
+	public void setFileId(int repDegree) {
         this.repDegree = repDegree;
     }
     

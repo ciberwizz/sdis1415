@@ -138,5 +138,19 @@ public class Config {
 
     }
 
+	public void delete(Message temp) {
+		// TODO DELETE de um fileID e seus chunks
+		//criar uma thread para fazer o delete, assim não poe a main thread busy com IO
+		
+		
+	}
+
+	public void decRepDegree(Message temp) {
+		// TODO decrementar o repdegree associado ao chunk temp4
+		// caso o repdegree for menor que o desejado
+		//		temos de enviar um putchunk se já não tiver sido enviado por alguem
+		
+	}
+
 }
 
