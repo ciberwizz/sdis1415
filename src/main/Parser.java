@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
@@ -61,50 +60,39 @@ public class Parser {
 
 	}
 
-	/*private static void writeCSV() throws IOException {
-		System.out.println("\n**** Write to CSV ****");
+    static void writeChunkToCsv(Chunk chunk) throws IOException {
 
-		String csv = "csv\\output.csv";
+        FileWriter fileWriter = new FileWriter("csv\\chunks.csv", true);
+        CSVWriter csvWriter = new CSVWriter(fileWriter);
+        int chunkNr = chunk.getChunkNr();
+        String fileId = chunk.getFileId();
+        String path = chunk.getPath();
+        int repDegree = chunk.getRepDegree();
+        int objectiveRepDegree = chunk.getObjectiveRepDegree();
+        byte[] data = chunk.getData();
 
-		CSVWriter writer = new CSVWriter(new FileWriter(csv));
+        String[] dataToWrite = new String[] {String.valueOf(chunkNr), fileId, path, String.valueOf(repDegree), String.valueOf(objectiveRepDegree), String.valueOf(data)};
 
-		String[] chunkId = "Chunk1#Chunk2#Chunk3".split("#");
-		writer.writeNext(chunkId);
-		System.out.println("CSV written successfully.");
-		writer.close();
-	}*/
+        csvWriter.writeNext(dataToWrite);
+        csvWriter.close();
+    }
 
-	private static void writeAll() throws IOException {
-		System.out.println("\n**** Write All to CSV ****");
-
-		String csv = "csv\\output2.csv";
-		CSVWriter writer = new CSVWriter(new FileWriter(csv));
-
-		List<String[]> data = new ArrayList<String[]>();
-		data.add(new String[] { "1", "File1" });
-		data.add(new String[] { "2", "File2" });
-
-		writer.writeAll(data);
-		System.out.println("CSV written successfully.");
-		writer.close();
-	}
-
-	public static void mapObjectChunk() throws FileNotFoundException {
+	public static void mapCsvToChunk() throws FileNotFoundException {
 		System.out.println("\n**** Map CSV to Chunk Object ****");
 
 		ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
 		strat.setType(Chunk.class);
-		String[] columns = new String[] { "chunkId", "fileId" };
+		String[] columns = new String[] {"chunkNr", "fileId", "path", "repDegree", "objectiveRepDegree", "data"};
 		strat.setColumnMapping(columns);
 
 		CsvToBean csv = new CsvToBean();
-
-		String csvFilename = "csv\\chunks.csv";
-		CSVReader csvReader = new CSVReader(new FileReader(csvFilename));
+		CSVReader csvReader = new CSVReader(new FileReader("csv\\chunks.csv"));
 
 		List list = csv.parse(strat, csvReader);
 		for (Object object : list) {
 			Chunk chunk = (Chunk) object;
+            String fileIdChunkNr = chunk.getFileId() + ".part" + Integer.toString(chunk.getChunkNr());
+            Config.chunksOfOurFiles.put(fileIdChunkNr, chunk);
 			System.out.println(chunk.getChunkNr());
 		}
 	}

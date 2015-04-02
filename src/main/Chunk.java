@@ -8,13 +8,15 @@ public class Chunk {
     private int objectiveRepDegree;
     private byte[] data;
 
-	public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree){
+    public Chunk(){}
+
+	public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree, int _objectiveRepDegree, byte[] _data){
         chunkNr = _chunkNr;
         fileId = _fileId;
         path = _path;
         repDegree = _repDegree;
-        objectiveRepDegree = _repDegree;
-        data = null;
+        objectiveRepDegree = _objectiveRepDegree;
+        data = _data;
     }
 
 	public int getChunkNr() {

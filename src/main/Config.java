@@ -3,16 +3,17 @@ package main;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class Config {
 
-    public ConcurrentHashMap<String, ArrayList<String>> chunksOfOurFiles = new ConcurrentHashMap<String, ArrayList<String>>();
-    public ConcurrentHashMap<String, ArrayList<String>> theirFiles = new ConcurrentHashMap<String, ArrayList<String>>();
+    public ConcurrentHashMap<String, Chunk> chunksOfOurFiles = new ConcurrentHashMap<String, Chunk>();
+    public ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
     private long reservedSpace;
     private long usedSpace;
     //private long freeSpace;
@@ -70,17 +71,18 @@ public class Config {
     }
 
 
-    private void splitFile(String fileName) throws IOException {
+    private void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
 
         File receivedFile = new File(fileName);
         FileInputStream inputStream = new FileInputStream(receivedFile);
         FileOutputStream outputStream = null;
-        String newChunkName;
+        String fileId = toSHA256(fileName);
+        String fileIdChunkNr;
         int fSize = (int) receivedFile.length();
         int nChunks = 0;
         int read = 0;
         byte[] chunkPartBytes = null;
-        ArrayList<String> fileChunks = new ArrayList<String>();
+        Chunk chunk = null;
 
         //if (freeSpace >= fSize) {
         while (fSize > 0) {
@@ -94,32 +96,35 @@ public class Config {
 
             fSize = fSize - read;
             nChunks++;
-            newChunkName = fileName + ".part" + Integer.toString(nChunks - 1);
-            outputStream = new FileOutputStream(new File(newChunkName));
+            fileIdChunkNr = fileId + ".part" + Integer.toString(nChunks - 1);
+            outputStream = new FileOutputStream(new File(fileIdChunkNr));
             outputStream.write(chunkPartBytes);
-            fileChunks.add(newChunkName);
+            chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), 0, 0, chunkPartBytes);
+            chunksOfOurFiles.put(fileIdChunkNr, chunk);
+            Parser.writeChunkToCsv(chunk);
             outputStream.flush();
             outputStream.close();
         }
         inputStream.close();
         receivedFile.delete();
-        chunksOfOurFiles.put(fileName, fileChunks);
+        numberOfChunks.put(fileName, nChunks);
         // freeSpace = freeSpace - fSize;
         //}
 
     }
 
 
-    private void restoreFile(String fileName) throws IOException {
-
-        ArrayList<String> chunkFiles = chunksOfOurFiles.get(fileName);
+    private void restoreFile(String fileName) throws IOException, NoSuchAlgorithmException {
+        int nChunks = numberOfChunks.get(fileName);
         ArrayList<File> cfile = new ArrayList<File>();
+        String fileId = toSHA256(fileName);
         byte chunkData[] = null;
         InputStream inputStream = null;
         OutputStream outputStream = new FileOutputStream(new File(fileName));
 
-        for (int j = 0; j < chunkFiles.size(); j++) {
-            cfile.add(new File(chunkFiles.get(j)));
+        for (int i = 0; i < nChunks; i++) {
+            File file = new File(fileId + ".part" + i);
+            cfile.add(file);
         }
 
 
@@ -138,6 +143,23 @@ public class Config {
 
     }
 
+
+    private String toSHA256(String filename) throws NoSuchAlgorithmException {
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(filename.getBytes());
+        byte byteData[] = md.digest();
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < byteData.length; i++) {
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
+    }
+
+
+
 	public void delete(Message temp) {
 		// TODO DELETE de um fileID e seus chunks
 		//criar uma thread para fazer o delete, assim não poe a main thread busy com IO
@@ -153,4 +175,3 @@ public class Config {
 	}
 
 }
-
