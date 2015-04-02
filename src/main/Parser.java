@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Parser {
 	
@@ -77,7 +78,7 @@ public class Parser {
         csvWriter.close();
     }
 
-	public static void mapCsvToChunk() throws FileNotFoundException {
+	public static void mapCsvToChunk(ConcurrentHashMap<String, Chunk> chunksOfOurFiles) throws FileNotFoundException {
 		System.out.println("\n**** Map CSV to Chunk Object ****");
 
 		ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
@@ -92,7 +93,7 @@ public class Parser {
 		for (Object object : list) {
 			Chunk chunk = (Chunk) object;
             String fileIdChunkNr = chunk.getFileId() + ".part" + Integer.toString(chunk.getChunkNr());
-            Config.chunksOfOurFiles.put(fileIdChunkNr, chunk);
+            chunksOfOurFiles.put(fileIdChunkNr, chunk);
 			System.out.println(chunk.getChunkNr());
 		}
 	}

@@ -18,6 +18,15 @@ public class Chunk {
         objectiveRepDegree = _objectiveRepDegree;
         data = _data;
     }
+	
+	public Chunk(int _chunkNr, String _fileId, String _path, int _repDegree){
+        chunkNr = _chunkNr;
+        fileId = _fileId;
+        path = _path;
+        repDegree = _repDegree;
+        objectiveRepDegree = _repDegree;
+        data = null;
+    }
 
 	public int getChunkNr() {
 		return chunkNr;
