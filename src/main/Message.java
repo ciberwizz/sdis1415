@@ -14,7 +14,7 @@ public class Message {
 	private long arriveTime;
 	private long objectiveTime;
 
-	public Message(String _type, String _fileId, int _chunkNr, int _repDegree/*TODO , Chunk _chunk*/){
+	public Message(String _type, String _fileId, int _chunkNr, int _repDegree){
 		type = _type;
 		fileId = _fileId;
 		chunkNr = _chunkNr;
@@ -30,7 +30,8 @@ public class Message {
 		type = _type;
 		fileId = ch.getFileId();
 		chunkNr = ch.getChunkNr();
-		objectiveRepDegree = repDegree = ch.getRepDegree();
+		objectiveRepDegree = ch.getObjectiveRepDegree(); 
+		repDegree = ch.getRepDegree();
 		arriveTime = System.currentTimeMillis();
 		objectiveTime = 0;
 	}
@@ -163,7 +164,7 @@ public class Message {
 		this.objectiveRepDegree = objectiveRepDegree;
 	}
 
-	public String getHeader() throws Exception{
+	public String getHeader(){
 
 		String str = new String( fileId + " " + chunkNr );
 
@@ -196,7 +197,6 @@ public class Message {
 		default:
 
 			System.err.println("ERROR: wrong message type in Comunication class");
-			throw new Exception("ERROR: wrong message type in Comunication class");
 
 		}
 

@@ -33,13 +33,10 @@ public class MessageTest {
 			fail("failed: " + e.getMessage());
 		}
 		
-		try{
-			msg.setType("PUTCHUNK2");
-			assertNotEquals("PUTCHUNK 1.0 sha5 5 3 "+ crlf+crlf ,msg.getHeader());
-			
-		}catch( Exception e){
-			return;
-		}
+		Message msg2 = new Message(msg.getHeader().getBytes());
+		
+		assertEquals(msg.getHeader(), msg2.getHeader());
+
 
 	}
 
@@ -64,7 +61,6 @@ public class MessageTest {
 		Message msg = new Message("PUTCHUNK",ch );
 		
 		
-		assertNotNull(ch.readFromFile());
 		assert((new String(msg.getData()).equals("PUTCHUNK 1.0 Sdaas 1 1 "+ Message.CRLF+ Message.CRLF)));
 	}
 }

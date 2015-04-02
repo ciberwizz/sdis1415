@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Config {
 
     public ConcurrentHashMap<String, Chunk> chunksOfOurFiles = new ConcurrentHashMap<String, Chunk>();
+    public ConcurrentHashMap<String, Chunk> theirChunks = new ConcurrentHashMap<String, Chunk>();
     public ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
     private long reservedSpace;
     private long usedSpace;
