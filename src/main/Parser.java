@@ -31,37 +31,8 @@ public class Parser {
 		}
 	}
 */
-/*	private static void readLineByLine() throws IOException {
-		System.out.println("\n**** Read Line By Line ****");
-		String csvFilename = "csv\\chunks.csv";
-		CSVReader csvReader = new CSVReader(new FileReader(csvFilename));
-		String[] row = null;
-		while ((row = csvReader.readNext()) != null) {
-			System.out.println(row[0] + " # " + row[1] + " #  " + row[2]);
-		}
 
-		csvReader.close();
-	}*/
-
-	private static void readAll() throws IOException {
-		System.out.println("\n**** Read All ****");
-		String[] row = null;
-		String csvFilename = "csv\\chunks.csv";
-
-		CSVReader csvReader = new CSVReader(new FileReader(csvFilename));
-		List content = csvReader.readAll();
-
-		for (Object object : content) {
-			row = (String[]) object;
-
-			System.out.println(row[0] + " # " + row[1] + " #  " + row[2]);
-		}
-
-		csvReader.close();
-
-	}
-
-    static void writeChunkToCsv(Chunk chunk) throws IOException {
+    public static void writeChunkToCsv(Chunk chunk) throws IOException {
 
         FileWriter fileWriter = new FileWriter("csv\\chunks.csv", true);
         CSVWriter csvWriter = new CSVWriter(fileWriter);
@@ -72,29 +43,50 @@ public class Parser {
         int objectiveRepDegree = chunk.getObjectiveRepDegree();
         byte[] data = chunk.getData();
 
-        String[] dataToWrite = new String[] {String.valueOf(chunkNr), fileId, path, String.valueOf(repDegree), String.valueOf(objectiveRepDegree), String.valueOf(data)};
+        String[] dataToWrite = new String[]{String.valueOf(chunkNr), fileId, path, String.valueOf(repDegree), String.valueOf(objectiveRepDegree), String.valueOf(data)};
 
         csvWriter.writeNext(dataToWrite);
         csvWriter.close();
     }
 
-	public static void mapCsvToChunk(ConcurrentHashMap<String, Chunk> chunksOfOurFiles) throws FileNotFoundException {
-		System.out.println("\n**** Map CSV to Chunk Object ****");
+    public static void writeNumberOfChunksToCsv(String fileName, int nChunks) throws IOException {
 
-		ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
-		strat.setType(Chunk.class);
-		String[] columns = new String[] {"chunkNr", "fileId", "path", "repDegree", "objectiveRepDegree", "data"};
-		strat.setColumnMapping(columns);
+        FileWriter fileWriter = new FileWriter("csv\\nchunks.csv", true);
+        CSVWriter csvWriter = new CSVWriter(fileWriter);
 
-		CsvToBean csv = new CsvToBean();
-		CSVReader csvReader = new CSVReader(new FileReader("csv\\chunks.csv"));
+        String[] dataToWrite = new String[]{fileName, String.valueOf(nChunks)};
 
-		List list = csv.parse(strat, csvReader);
-		for (Object object : list) {
-			Chunk chunk = (Chunk) object;
-            String fileIdChunkNr = chunk.getFileId() + ".part" + Integer.toString(chunk.getChunkNr());
+        csvWriter.writeNext(dataToWrite);
+        csvWriter.close();
+    }
+
+    public static void mapCsvToChunk(ConcurrentHashMap<String, Chunk> chunksOfOurFiles) throws FileNotFoundException {
+
+        ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
+        strat.setType(Chunk.class);
+        String[] columns = new String[]{"chunkNr", "fileId", "path", "repDegree"};
+        strat.setColumnMapping(columns);
+
+        CsvToBean csv = new CsvToBean();
+        CSVReader csvReader = new CSVReader(new FileReader("csv\\chunks.csv"));
+
+        List list = csv.parse(strat, csvReader);
+        for (Object object : list) {
+            Chunk chunk = (Chunk) object;
+            String fileIdChunkNr = chunk.getFileId() + "_" + Integer.toString(chunk.getChunkNr());
             chunksOfOurFiles.put(fileIdChunkNr, chunk);
-			System.out.println(chunk.getChunkNr());
-		}
-	}
+        }
+    }
+
+    public static void mapCsvToHash(ConcurrentHashMap<String, Integer> numberOfChunks) throws IOException {
+
+        CSVReader cvsReader = new CSVReader(new FileReader("csv\\nChunks.csv"));
+        String[] row;
+        int i = 0;
+
+        while ((row = cvsReader.readNext()) != null) {
+            numberOfChunks.put(row[i], Integer.valueOf(row[i + 1]));
+        }
+        cvsReader.close();
+    }
 }

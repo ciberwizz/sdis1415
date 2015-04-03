@@ -1,5 +1,6 @@
-package main;
+﻿package main;
 
+import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.*;
@@ -12,16 +13,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Config {
 
-    public ConcurrentHashMap<String, Chunk> chunksOfOurFiles = new ConcurrentHashMap<String, Chunk>();
-    public ConcurrentHashMap<String, Chunk> theirChunks = new ConcurrentHashMap<String, Chunk>();
-    public ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
+    public static ConcurrentHashMap<String, Chunk> chunksOfOurFiles = new ConcurrentHashMap<String, Chunk>();
+    public static ConcurrentHashMap<String, Chunk> theirChunks = new ConcurrentHashMap<String, Chunk>();
+    public static ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
     private long reservedSpace;
     private long usedSpace;
     //private long freeSpace;
 
-
+/*
     private void filesToCsv() throws IOException {
-        File folder = new File("csv");
+        File folder = new File("files");
         File[] listOfFiles = folder.listFiles();
         List<String[]> listing = new ArrayList<String[]>();
         CSVWriter writer = new CSVWriter(new FileWriter("csv\\fileslist.csv"));
@@ -34,41 +35,43 @@ public class Config {
         writer.writeAll(listing);
         writer.close();
     }
+*/
 
-    private ArrayList<File> newFileInPath() throws IOException {
+    private void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
-        String line = null;
-        BufferedReader br = null;
+        String [] nextLine;
+        CSVReader reader = new CSVReader(new FileReader("csv\\fileslist.csv"));
         ArrayList<String> csvContent = new ArrayList<String>();
-        File folder = new File("csv");
+        File folder = new File("files");
         File[] listOfFiles = folder.listFiles();
-        ArrayList<File> newFiles = new ArrayList<File>();
+        FileWriter fileWriter = new FileWriter("csv\\fileslist.csv", true);
+        CSVWriter csvWriter = new CSVWriter(fileWriter);
+        int a = 0;
 
-
-        try {
-            br = new BufferedReader(new FileReader("csv\\fileslist.csv"));
-            while ((line = br.readLine()) != null)
-                csvContent.add(line);
-        } finally {
-            if (br != null)
-                br.close();
+        while ((nextLine = reader.readNext()) != null) {
+            csvContent.add(nextLine[0]);
         }
-
 
         for (int i = 0; i < listOfFiles.length; i++) {
             String search = listOfFiles[i].getName();
-            for (String str : csvContent) {
-                if (!str.contains(search))
-                    newFiles.add(listOfFiles[i]);
+
+            if(csvContent.size()== 0 && listOfFiles[i].isFile()) {
+                csvWriter.writeNext(new String[]{listOfFiles[i].getName()});
+                splitFile("files\\"+search);
             }
+            else{
+                for (String str : csvContent) {
+                    if (search.equals(str) && listOfFiles[i].isFile()) {a = 1;}
+                }
 
-
+                if(a == 0 && listOfFiles[i].isFile()){
+                    csvWriter.writeNext(new String[]{listOfFiles[i].getName()});
+                    splitFile("files\\"+search);
+                }
+                csvWriter.close();
+            }
         }
 
-        for (int i = 0; i < newFiles.size(); i++) {
-            System.out.println(newFiles.get(i));
-        }
-        return newFiles;
     }
 
 
@@ -97,10 +100,10 @@ public class Config {
 
             fSize = fSize - read;
             nChunks++;
-            fileIdChunkNr = fileId + ".part" + Integer.toString(nChunks - 1);
+            fileIdChunkNr = fileId + "_" + Integer.toString(nChunks - 1);
             outputStream = new FileOutputStream(new File(fileIdChunkNr));
             outputStream.write(chunkPartBytes);
-            chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), 0, 0, chunkPartBytes);
+            chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), 0);
             chunksOfOurFiles.put(fileIdChunkNr, chunk);
             Parser.writeChunkToCsv(chunk);
             outputStream.flush();
@@ -109,6 +112,7 @@ public class Config {
         inputStream.close();
         receivedFile.delete();
         numberOfChunks.put(fileName, nChunks);
+        Parser.writeNumberOfChunksToCsv(fileName,nChunks);
         // freeSpace = freeSpace - fSize;
         //}
 
@@ -124,7 +128,7 @@ public class Config {
         OutputStream outputStream = new FileOutputStream(new File(fileName));
 
         for (int i = 0; i < nChunks; i++) {
-            File file = new File(fileId + ".part" + i);
+            File file = new File(fileId + "_" + i);
             cfile.add(file);
         }
 
@@ -158,7 +162,6 @@ public class Config {
 
         return sb.toString();
     }
-
 
 
 	public void delete(Message temp) {
