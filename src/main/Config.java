@@ -30,35 +30,31 @@ public class Config {
         ArrayList<String> csvContent = new ArrayList<String>();
         File folder = new File("data\\files\\");
         File[] listOfFiles = folder.listFiles();
-        int a = 0;
+        ArrayList<String> folderContent = new ArrayList<String>();
 
         while ((nextLine = reader.readNext()) != null) {
             csvContent.add(nextLine[0]);
         }
         reader.close();
 
-        for (int i = 0; i < listOfFiles.length; i++) {
-            String search = listOfFiles[i].getName();
+        for (int i = 0; i < listOfFiles.length; i++)
+            if(listOfFiles[i].isFile())
+                folderContent.add(listOfFiles[i].getName());
 
-            if(csvContent.size()== 0 && listOfFiles[i].isFile()) {
-                csvWriter.writeNext(new String[]{listOfFiles[i].getName()});
-                splitFile("data\\files\\" + search);
-            }
-            else{
-                for (String str : csvContent) {
-                    if (search.equals(str) && listOfFiles[i].isFile()) {a = 1;}
-                }
+        Set<String> a = new HashSet<String>(csvContent);
+        Set<String> b = new HashSet<String>(folderContent);
+        b.removeAll(a);
+        ArrayList<String> mainList = new ArrayList<String>();
+        mainList.addAll(b);
 
-                if(a == 0 && listOfFiles[i].isFile()){
-                    csvWriter.writeNext(new String[]{listOfFiles[i].getName()});
-                    splitFile("data\\files\\"+search);
-                }
-            }
-            csvWriter.close();
+        for (int h = 0; h < mainList.size(); h++) {
+            csvWriter.writeNext(new String[]{mainList.get(h)});
+            splitFile("data\\files\\"+mainList.get(h));
         }
-        reader.close();
+        csvWriter.close();
 
     }
+
 
 
     private void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
