@@ -71,6 +71,7 @@ public class Config {
                 csvWriter.close();
             }
         }
+        reader.close();
 
     }
 

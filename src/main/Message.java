@@ -123,6 +123,29 @@ public class Message {
 		}
 
 	}
+	
+	public Message( Message m){
+		
+		type = m.getType();
+		fileId = m.getFileId();
+		chunkNr = m.getChunkNr();
+		objectiveRepDegree = m.getObjectiveRepDegree(); 
+		repDegree = m.repDegree;
+		arriveTime = m.getArriveTime();
+		objectiveTime = 0;
+		
+		
+		chunk = new Chunk(chunkNr, fileId, m.getChunk().getPath(), repDegree);
+		
+	}
+
+	public Chunk getChunk() {
+		return chunk;
+	}
+
+	public void setChunk(Chunk chunk) {
+		this.chunk = chunk;
+	}
 
 	public String getType() {
 		return type;
@@ -209,7 +232,21 @@ public class Message {
 
 		try {
 			output.write(getHeader().getBytes());
-			output.write(chunk.readFromFile());
+			
+			switch (type) {
+			case "PUTCHUNK":
+			case "CHUNK":
+				
+				byte[] b = chunk.readFromFile();
+				
+				if(b != null)
+					output.write(chunk.readFromFile());
+
+				break;
+
+			default:
+				break;
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -237,7 +274,7 @@ public class Message {
 	}
 
 	public long getElapsed(){		
-		return this.arriveTime - System.currentTimeMillis();						
+		return System.currentTimeMillis() - this.arriveTime;						
 	}
 	
 	public boolean isTime(){
@@ -246,6 +283,10 @@ public class Message {
 	
 	public void incRepDegree(){
 		this.repDegree++;
+	}
+	
+	public String getId(){
+		return getFileId() + "_" + getChunkNr();
 	}
 
 }

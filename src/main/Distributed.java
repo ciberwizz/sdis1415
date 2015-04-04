@@ -1,6 +1,7 @@
 package main;
 
 import java.io.ObjectOutputStream.PutField;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -8,19 +9,20 @@ public class Distributed {
 
 	public static Config config = new Config();
 
+	public static ConcurrentLinkedQueue<Message> inMC = new ConcurrentLinkedQueue<Message>();
+	public static ConcurrentLinkedQueue<Message> inMDB = new ConcurrentLinkedQueue<Message>();
+	public static ConcurrentLinkedQueue<Message> inMDR = new ConcurrentLinkedQueue<Message>();
+
+	//responses for us
+	public static ConcurrentHashMap<String, Message> expectChunk = new ConcurrentHashMap<String, Message>();
+	public static ConcurrentHashMap<String, Message> expectStore = new ConcurrentHashMap<String, Message>();
+
+	//for us to send
+	public static ConcurrentHashMap<String, Message> toSendChunk = new ConcurrentHashMap<String, Message>();
+	public static ConcurrentHashMap<String, Message> toSendStore = new ConcurrentHashMap<String, Message>();
+
+
 	public static void main(String[] args) {
-
-		ConcurrentLinkedQueue<Message> inMC = new ConcurrentLinkedQueue<Message>();
-		ConcurrentLinkedQueue<Message> inMDB = new ConcurrentLinkedQueue<Message>();
-		ConcurrentLinkedQueue<Message> inMDR = new ConcurrentLinkedQueue<Message>();
-
-		//responses for us
-		ConcurrentHashMap<String, Message> expectChunk = new ConcurrentHashMap<String, Message>();
-		ConcurrentHashMap<String, Message> expectStore = new ConcurrentHashMap<String, Message>();
-
-		//for us to send
-		ConcurrentHashMap<String, Message> toSendChunk = new ConcurrentHashMap<String, Message>();
-		ConcurrentHashMap<String, Message> toSendStore = new ConcurrentHashMap<String, Message>();
 
 		//DEBUG
 		//TODO REMOVE
@@ -45,9 +47,10 @@ public class Distributed {
 		Thread thMDB = new Thread(new ThChannelRecv(chMdb, chMdbPort, inMDB));
 		Thread thMDR = new Thread(new ThChannelRecv(chMdr, chMdrPort, inMDR));
 
+		//TODO start threads
 
 
-		while(true){
+		while(!Thread.currentThread().isInterrupted()){
 
 			Message temp;
 
@@ -81,26 +84,26 @@ public class Distributed {
 
 				case "GETCHUNK":
 					temp.setRepDegree(0);
-					
+
 					Message t;
-					
-					if(config.chunksOfOurFiles.contains(id)){
-						
-						t = new Message("CHUNK", config.chunksOfOurFiles.get(id));
-						
+
+					if(Config.chunksOfOurFiles.contains(id)){
+
+						t = new Message("CHUNK", Config.chunksOfOurFiles.get(id));
+
 						toSendChunk.put(id, temp);
-						
-						sendMessage("CHUNK",t,toSendChunk);
-					
-					
+
+						sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
+
+
 					} else 
-						if(config.theirChunks.containsKey(id)){
-							
-							t = new Message("CHUNK", config.theirChunks.get(id));
-							
+						if(Config.theirChunks.containsKey(id)){
+
+							t = new Message("CHUNK", Config.theirChunks.get(id));
+
 							toSendChunk.put(id, temp);
-							
-							sendMessage("CHUNK",t,toSendChunk);
+
+							sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
 						}
 					break;
 
@@ -135,7 +138,7 @@ public class Distributed {
 					String id = temp.getFileId() + "_" + temp.getChunkNr();
 					temp.setRepDegree(0);
 					toSendStore.put(id,temp);
-					sendMessage("STORED",temp,toSendStore);
+					sendMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
 
 				}
 
@@ -181,6 +184,12 @@ public class Distributed {
 			//TODO actualizar os repdegrees conforme o que estiver nos expect e tosend
 			//TODO limpar os pedidos que foram á mais de 400ms
 
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+
+			}
+
 		}
 
 
@@ -188,48 +197,85 @@ public class Distributed {
 	}
 
 	private static void sendMessage(String type, Message temp,
-			ConcurrentHashMap<String, Message> idChunk) {
+			final ConcurrentHashMap<String, Message> hash, 
+			final Communication comm) {
 		// TODO criarThread que envia o chunk em 0-400ms
 		// 		só se não tiver sido enviado. verificar o toSendChunk
-		//TODO fazer um copy clean, se nao ao mudar o type tambem vamos mudar no concurrenthash
 
-		Message out_m = null;
-		
-		String id = temp.getFileId() + "_" + temp.getChunkNr();
-		
+		final Message out_m;
+
+		final String id = temp.getFileId() + "_" + temp.getChunkNr();
+
 		switch (type) {
 		case "STORED":
 
 			//easy way to make a clean copy xD
 
 			//clean copy
-			out_m = new Message(temp.getHeader().getBytes());
+			out_m = new Message(temp);
 
 			out_m.setType(type);
 
 			break;
 
 		case "CHUNK":
-			out_m = new Message(temp.getData());
+			out_m = new Message(temp);
 			out_m.setType(type);
 			break;
 
 
 		default:
+
+			out_m = null;
 			break;
-		}
+		}		
 
 		Thread th = new Thread(){
-			
+			Message out = out_m;
+			Communication com = comm;
 			@Override
 			public void run() {
-				
+
 				super.run();
 
-//				if(out != null){
-////					out.getData();
-//
-//				}
+				Random rnd = new Random();				
+
+				if(out != null){
+
+					//TODO retries can be 400*2^n max
+					int sleep = (int) (400 - out.getElapsed());
+					sleep = rnd.nextInt(sleep);
+
+					System.out.println("out.getElapsed: " + out.getElapsed());
+					System.out.println("max: " + sleep);
+
+					out.setObjectiveTime(sleep);
+
+					try {
+						Thread.sleep(sleep);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					com.send(out.getData());
+					System.out.println("sent in: " + out.getElapsed());
+
+					switch(out.getType()){
+
+					case "STORED":
+						Message m  = new Message( hash.get(out.getId()));
+						
+						Config.theirChunks.put(m.getId(), m.getChunk());
+						
+						break;
+
+					default:
+						break;
+
+					}
+
+
+				}
 			}
 
 		};

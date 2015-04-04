@@ -60,7 +60,9 @@ public class MessageTest {
 		Chunk ch = new Chunk(1, "Sdaas", "chunks/", 1);
 		Message msg = new Message("PUTCHUNK",ch );
 		
+		String output = new String(msg.getData());
 		
-		assert((new String(msg.getData()).equals("PUTCHUNK 1.0 Sdaas 1 1 "+ Message.CRLF+ Message.CRLF)));
+//		assert((new String(msg.getData()).equals("PUTCHUNK 1.0 Sdaas 1 1 "+ Message.CRLF+ Message.CRLF)));
+		assertEquals("PUTCHUNK 1.0 Sdaas 1 1 "+ Message.CRLF+ Message.CRLF, output);
 	}
 }

@@ -9,8 +9,7 @@ import java.net.MulticastSocket;
 
 public class Communication {
 
-	public static int MAX_SIZE = 64*1024; //TODO verificar qual o tamanho maximo de um chunk
-
+	public static int MAX_SIZE = 64*1024; 
 	private	String channel = new String();
 	private int port;
 
@@ -39,6 +38,7 @@ public class Communication {
 	public byte[] receive(){
 		byte[] data =  new byte[MAX_SIZE];
 
+		byte[] ret = null;
 
 		try(MulticastSocket recveiveSocket = new MulticastSocket(port)){
 
@@ -50,13 +50,16 @@ public class Communication {
 			DatagramPacket msgPacket = new DatagramPacket(data, data.length);
 			recveiveSocket.receive(msgPacket);
 			recveiveSocket.close();
+			
+			ret = new byte[msgPacket.getLength()];
+			System.arraycopy(data, 0, ret, 0, msgPacket.getLength());
 
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 
 
-		return data;
+		return ret;
 	}
 
 
