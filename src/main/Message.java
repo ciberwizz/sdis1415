@@ -136,6 +136,9 @@ public class Message {
 		
 		
 		chunk = new Chunk(chunkNr, fileId, m.getChunk().getPath(), repDegree);
+		if(m.getChunk().getData() != null){
+			chunk.setData(m.getChunk().getData());
+		}
 		
 	}
 

@@ -91,6 +91,7 @@ public class Distributed {
 
 						t = new Message("CHUNK", Config.chunksOfOurFiles.get(id));
 
+						temp.setRepDegree(0);
 						toSendChunk.put(id, temp);
 
 						sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
@@ -101,6 +102,7 @@ public class Distributed {
 
 							t = new Message("CHUNK", Config.theirChunks.get(id));
 
+							temp.setRepDegree(0);
 							toSendChunk.put(id, temp);
 
 							sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
@@ -256,6 +258,15 @@ public class Distributed {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					
+					//check if someone allready reponded to the getchunk
+					if(out.getType().equals("CHUNK")){
+						if(hash.containsKey(out.getId())){
+							if(hash.get(out.getId()).getRepDegree()>0){
+								return;
+							}
+						}
+					}
 
 					com.send(out.getData());
 					System.out.println("sent in: " + out.getElapsed());
@@ -266,6 +277,12 @@ public class Distributed {
 						Message m  = new Message( hash.get(out.getId()));
 						
 						Config.theirChunks.put(m.getId(), m.getChunk());
+						
+						break;
+						
+					case "CHUNK":
+						
+						
 						
 						break;
 
