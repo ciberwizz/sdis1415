@@ -1,4 +1,4 @@
-﻿package main;
+package main;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
@@ -18,46 +18,31 @@ public class Config {
     public static ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
     private long reservedSpace;
     private long usedSpace;
-    //private long freeSpace;
+    //private long freeSpace
 
-/*
-    private void filesToCsv() throws IOException {
-        File folder = new File("files");
-        File[] listOfFiles = folder.listFiles();
-        List<String[]> listing = new ArrayList<String[]>();
-        CSVWriter writer = new CSVWriter(new FileWriter("csv\\fileslist.csv"));
-
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile())
-                listing.add(new String[]{listOfFiles[i].getName()});
-        }
-
-        writer.writeAll(listing);
-        writer.close();
-    }
-*/
 
     private void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
         String [] nextLine;
-        CSVReader reader = new CSVReader(new FileReader("csv\\fileslist.csv"));
-        ArrayList<String> csvContent = new ArrayList<String>();
-        File folder = new File("files");
-        File[] listOfFiles = folder.listFiles();
         FileWriter fileWriter = new FileWriter("csv\\fileslist.csv", true);
         CSVWriter csvWriter = new CSVWriter(fileWriter);
+        CSVReader reader = new CSVReader(new FileReader("csv\\fileslist.csv"));
+        ArrayList<String> csvContent = new ArrayList<String>();
+        File folder = new File("data\\files\\");
+        File[] listOfFiles = folder.listFiles();
         int a = 0;
 
         while ((nextLine = reader.readNext()) != null) {
             csvContent.add(nextLine[0]);
         }
+        reader.close();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             String search = listOfFiles[i].getName();
 
             if(csvContent.size()== 0 && listOfFiles[i].isFile()) {
                 csvWriter.writeNext(new String[]{listOfFiles[i].getName()});
-                splitFile("files\\"+search);
+                splitFile("data\\files\\" + search);
             }
             else{
                 for (String str : csvContent) {
@@ -66,10 +51,10 @@ public class Config {
 
                 if(a == 0 && listOfFiles[i].isFile()){
                     csvWriter.writeNext(new String[]{listOfFiles[i].getName()});
-                    splitFile("files\\"+search);
+                    splitFile("data\\files\\"+search);
                 }
-                csvWriter.close();
             }
+            csvWriter.close();
         }
 
     }
@@ -90,18 +75,18 @@ public class Config {
 
         //if (freeSpace >= fSize) {
         while (fSize > 0) {
-            if (fSize <= 64) {
+            if (fSize <= 64*1024) {
                 chunkPartBytes = new byte[fSize];
                 read = inputStream.read(chunkPartBytes, 0, fSize);
             } else {
                 chunkPartBytes = new byte[64];
-                read = inputStream.read(chunkPartBytes, 0, 64);
+                read = inputStream.read(chunkPartBytes, 0, 64*1024);
             }
 
             fSize = fSize - read;
             nChunks++;
             fileIdChunkNr = fileId + "_" + Integer.toString(nChunks - 1);
-            outputStream = new FileOutputStream(new File(fileIdChunkNr));
+            outputStream = new FileOutputStream(new File("data\\chunks",fileIdChunkNr));
             outputStream.write(chunkPartBytes);
             chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), 0);
             chunksOfOurFiles.put(fileIdChunkNr, chunk);
@@ -110,7 +95,6 @@ public class Config {
             outputStream.close();
         }
         inputStream.close();
-        receivedFile.delete();
         numberOfChunks.put(fileName, nChunks);
         Parser.writeNumberOfChunksToCsv(fileName,nChunks);
         // freeSpace = freeSpace - fSize;
@@ -164,18 +148,18 @@ public class Config {
     }
 
 
-	public void delete(Message temp) {
-		// TODO DELETE de um fileID e seus chunks
-		//criar uma thread para fazer o delete, assim não poe a main thread busy com IO
-		
-		
-	}
+    public void delete(Message temp) {
+        // TODO DELETE de um fileID e seus chunks
+        //criar uma thread para fazer o delete, assim não poe a main thread busy com IO
 
-	public void decRepDegree(Message temp) {
-		// TODO decrementar o repdegree associado ao chunk temp4
-		// caso o repdegree for menor que o desejado
-		//		temos de enviar um putchunk se já não tiver sido enviado por alguem
-		
-	}
+
+    }
+
+    public void decRepDegree(Message temp) {
+        // TODO decrementar o repdegree associado ao chunk temp4
+        // caso o repdegree for menor que o desejado
+        //		temos de enviar um putchunk se já não tiver sido enviado por alguem
+
+    }
 
 }
