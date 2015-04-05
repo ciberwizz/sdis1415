@@ -37,11 +37,11 @@ restoreFile("a.png");
     public static void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
         String [] nextLine;
-        FileWriter fileWriter = new FileWriter("csv\\fileslist.csv", true);
+        FileWriter fileWriter = new FileWriter("csv/fileslist.csv", true);
         CSVWriter csvWriter = new CSVWriter(fileWriter);
-        CSVReader reader = new CSVReader(new FileReader("csv\\fileslist.csv"));
+        CSVReader reader = new CSVReader(new FileReader("csv/fileslist.csv"));
         ArrayList<String> csvContent = new ArrayList<String>();
-        File folder = new File("data\\files\\");
+        File folder = new File("data/files");
         File[] listOfFiles = folder.listFiles();
         ArrayList<String> folderContent = new ArrayList<String>();
 
@@ -71,7 +71,7 @@ restoreFile("a.png");
 
     private static void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
 
-        File receivedFile = new File("data\\files\\"+fileName);
+        File receivedFile = new File("data/files/"+fileName);
         FileInputStream inputStream = new FileInputStream(receivedFile);
         FileOutputStream outputStream = null;
         String fileId = toSHA256(fileName);
@@ -88,14 +88,14 @@ restoreFile("a.png");
                 chunkPartBytes = new byte[fSize];
                 read = inputStream.read(chunkPartBytes, 0, fSize);
             } else {
-                chunkPartBytes = new byte[64];
+                chunkPartBytes = new byte[64*1024];
                 read = inputStream.read(chunkPartBytes, 0, 64*1024);
             }
 
             fSize = fSize - read;
             nChunks++;
             fileIdChunkNr = fileId + "_" + Integer.toString(nChunks - 1);
-            outputStream = new FileOutputStream(new File("data\\chunks",fileIdChunkNr));
+            outputStream = new FileOutputStream(new File("data/chunks",fileIdChunkNr));
             outputStream.write(chunkPartBytes);
             chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), 0);
             chunksOfOurFiles.put(fileIdChunkNr, chunk);
@@ -118,16 +118,16 @@ restoreFile("a.png");
         String fileId = toSHA256(fileName);
         byte chunkData[];
         InputStream inputStream = null;
-        OutputStream outputStream = new FileOutputStream(new File("data\\files\\"+fileName));
+        OutputStream outputStream = new FileOutputStream(new File("data/files/"+"retore_" +fileName));
 
         for (int i = 0; i < nChunks; i++) {
-            File file = new File(fileId + "_" + i);
+            File file = new File("data/chunks/"+fileId + "_" + i);
             cfile.add(file);
         }
 
 
         for (File file : cfile) {
-            inputStream = new FileInputStream(new File("data\\chunks\\"+file));
+            inputStream = new FileInputStream(file);
             chunkData = new byte[(int) file.length()];
             inputStream.read(chunkData, 0, (int) file.length());
             outputStream.write(chunkData);
@@ -141,8 +141,8 @@ restoreFile("a.png");
 
     public static void deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
 
-        File file = new File("data\\files\\"+fileName);
-        File chunksFolder = new File("data\\chunks\\");
+        File file = new File("data/files/"+fileName);
+        File chunksFolder = new File("data/chunks/");
         File[] listOfFiles = chunksFolder.listFiles();
 
         Set set = numberOfChunks.keySet();
@@ -169,7 +169,7 @@ restoreFile("a.png");
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(toSHA256(fileName))) {
-                File auxFile = new File("data\\chunks\\" + listOfFiles[i].getName());
+                File auxFile = new File("data/chunks/" + listOfFiles[i].getName());
                 auxFile.delete();
             }
         }

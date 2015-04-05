@@ -23,203 +23,203 @@ public class Distributed {
 	public static ConcurrentHashMap<String, Message> toSendStore = new ConcurrentHashMap<String, Message>();
 
 
-	public static void main(String[] args) {
-
-		//DEBUG
-		//TODO REMOVE
-		String[] a = {"224.0.0.7", "9999", "224.0.0.8", "9999", "224.0.0.9", "9999"};
-		args = a;
-
-		if(args.length < 6){
-			System.out.println("Args: Channel_MC Port_MC Channel_MDB Port_MDB Channel_MDR Port_MDR");
-			return;
-		}
-
-		String chMc = args[0];
-		int chMcPort =  Integer.parseInt(args[1]);
-
-		String chMdb = args[2];
-		int chMdbPort =  Integer.parseInt(args[3]);
-
-		String chMdr = args[4];
-		int chMdrPort =  Integer.parseInt(args[5]);
-
-		Thread thMC = new Thread(new ThChannelRecv(chMc, chMcPort, inMC));
-		Thread thMDB = new Thread(new ThChannelRecv(chMdb, chMdbPort, inMDB));
-		Thread thMDR = new Thread(new ThChannelRecv(chMdr, chMdrPort, inMDR));
-
-		//TODO start threads
-
-
-		while(!Thread.currentThread().isInterrupted()){
-
-			Message temp;
-
-			//check inMC
-			temp = inMC.poll();
-
-			if(temp != null){
-				//check
-				//stored
-				//getchunk
-				//delete
-				//removed
-				String id = temp.getFileId() + "_" + temp.getChunkNr();
-
-				switch(temp.getType() ){
-
-				case "STORED":
-
-					if(expectStore.containsKey(id)){
-						temp = expectStore.get(id);
-						temp.incRepDegree();
-						expectStore.replace(id, temp);
-					} else 
-						if(toSendStore.containsKey(id)){
-							temp = toSendStore.get(id);
-							temp.incRepDegree();
-							toSendStore.replace(id, temp);
-						} 
-
-					break;
-
-				case "GETCHUNK":
-					temp.setRepDegree(0);
-
-					Message t;
-
-					if(Config.chunksOfOurFiles.contains(id)){
-
-						t = new Message("CHUNK", Config.chunksOfOurFiles.get(id));
-
-						temp.setRepDegree(0);
-						toSendChunk.put(id, temp);
-
-						sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
-
-
-					} else 
-						if(Config.theirChunks.containsKey(id)){
-
-							t = new Message("CHUNK", Config.theirChunks.get(id));
-
-							temp.setRepDegree(0);
-							toSendChunk.put(id, temp);
-
-							sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
-						}
-					break;
-
-				case "DELETE":
-
-					config.delete(temp);
-
-					break;
-
-				case "REMOVED":
-					//Chunk if repdegree < objectiveRepDegree
-					Chunk chk = config.decRepDegree(temp);
-					if( chk != null){
-						
-						t = new Message("PUTCHUNK", chk);
-						
-						temp.setRepDegree(0);
-						toSendPutChunk.put(id, temp);
-
-						sendMessage("PUTCHUNK",t,toSendPutChunk, new Communication(chMdb, chMdbPort));
-					}
-
-					break;
-
-
-				default:
-
-				}
-			}
-
-
-
-			//check inMDB
-			temp = inMDB.poll();
-
-			if(temp != null){
-				//check
-				//putchunk
-
-				if(temp.getType().equals("PUTCHUNK")){
-
-					String id = temp.getFileId() + "_" + temp.getChunkNr();
-					
-					if(toSendPutChunk.containsKey(id)){
-						
-						Message m = toSendPutChunk.get(id);
-						
-						m.incRepDegree();
-						toSendPutChunk.replace(id, m);
-						
-					} else {
-					
-					
-						temp.setRepDegree(0);
-						toSendStore.put(id,temp);
-						sendMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
-					}
-
-				}
-
-			}
-
-
-
-
-			//check inMDR
-			temp = inMDR.poll();
-
-			if(temp != null){
-				//check
-				//chunk
-
-				if(temp.getType().equals("CHUNK")){
-
-					String id = temp.getFileId() + "_" + temp.getChunkNr();
-
-					if(expectChunk.containsKey(id)){
-
-						expectChunk.replace(id, temp);
-
-						//TODO send to config
-
-					} else
-						if(toSendChunk.containsKey(id)){
-
-							//the thread will check
-							//	1 - a chunk was already sent
-							//  0 - a chunk was not sent
-							temp.setRepDegree(1);
-							toSendChunk.replace(id, temp);							
-						}
-
-
-
-				}
-			}
-
-
-
-			//TODO actualizar os repdegrees conforme o que estiver nos expect e tosend
-			//TODO limpar os pedidos que foram á mais de 400ms
-
-			try {
-				Thread.sleep(20);
-			} catch (InterruptedException e) {
-
-			}
-
-		}
-
-
-
-	}
+//	public static void main(String[] args) {
+//
+//		//DEBUG
+//		//TODO REMOVE
+//		String[] a = {"224.0.0.7", "9999", "224.0.0.8", "9999", "224.0.0.9", "9999"};
+//		args = a;
+//
+//		if(args.length < 6){
+//			System.out.println("Args: Channel_MC Port_MC Channel_MDB Port_MDB Channel_MDR Port_MDR");
+//			return;
+//		}
+//
+//		String chMc = args[0];
+//		int chMcPort =  Integer.parseInt(args[1]);
+//
+//		String chMdb = args[2];
+//		int chMdbPort =  Integer.parseInt(args[3]);
+//
+//		String chMdr = args[4];
+//		int chMdrPort =  Integer.parseInt(args[5]);
+//
+//		Thread thMC = new Thread(new ThChannelRecv(chMc, chMcPort, inMC));
+//		Thread thMDB = new Thread(new ThChannelRecv(chMdb, chMdbPort, inMDB));
+//		Thread thMDR = new Thread(new ThChannelRecv(chMdr, chMdrPort, inMDR));
+//
+//		//TODO start threads
+//
+//
+//		while(!Thread.currentThread().isInterrupted()){
+//
+//			Message temp;
+//
+//			//check inMC
+//			temp = inMC.poll();
+//
+//			if(temp != null){
+//				//check
+//				//stored
+//				//getchunk
+//				//delete
+//				//removed
+//				String id = temp.getFileId() + "_" + temp.getChunkNr();
+//
+//				switch(temp.getType() ){
+//
+//				case "STORED":
+//
+//					if(expectStore.containsKey(id)){
+//						temp = expectStore.get(id);
+//						temp.incRepDegree();
+//						expectStore.replace(id, temp);
+//					} else 
+//						if(toSendStore.containsKey(id)){
+//							temp = toSendStore.get(id);
+//							temp.incRepDegree();
+//							toSendStore.replace(id, temp);
+//						} 
+//
+//					break;
+//
+//				case "GETCHUNK":
+//					temp.setRepDegree(0);
+//
+//					Message t;
+//
+//					if(Config.chunksOfOurFiles.contains(id)){
+//
+//						t = new Message("CHUNK", Config.chunksOfOurFiles.get(id));
+//
+//						temp.setRepDegree(0);
+//						toSendChunk.put(id, temp);
+//
+//						sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
+//
+//
+//					} else 
+//						if(Config.theirChunks.containsKey(id)){
+//
+//							t = new Message("CHUNK", Config.theirChunks.get(id));
+//
+//							temp.setRepDegree(0);
+//							toSendChunk.put(id, temp);
+//
+//							sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
+//						}
+//					break;
+//
+//				case "DELETE":
+//
+//					config.delete(temp);
+//
+//					break;
+//
+//				case "REMOVED":
+//					//Chunk if repdegree < objectiveRepDegree
+//					Chunk chk = config.decRepDegree(temp);
+//					if( chk != null){
+//						
+//						t = new Message("PUTCHUNK", chk);
+//						
+//						temp.setRepDegree(0);
+//						toSendPutChunk.put(id, temp);
+//
+//						sendMessage("PUTCHUNK",t,toSendPutChunk, new Communication(chMdb, chMdbPort));
+//					}
+//
+//					break;
+//
+//
+//				default:
+//
+//				}
+//			}
+//
+//
+//
+//			//check inMDB
+//			temp = inMDB.poll();
+//
+//			if(temp != null){
+//				//check
+//				//putchunk
+//
+//				if(temp.getType().equals("PUTCHUNK")){
+//
+//					String id = temp.getFileId() + "_" + temp.getChunkNr();
+//					
+//					if(toSendPutChunk.containsKey(id)){
+//						
+//						Message m = toSendPutChunk.get(id);
+//						
+//						m.incRepDegree();
+//						toSendPutChunk.replace(id, m);
+//						
+//					} else {
+//					
+//					
+//						temp.setRepDegree(0);
+//						toSendStore.put(id,temp);
+//						sendMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
+//					}
+//
+//				}
+//
+//			}
+//
+//
+//
+//
+//			//check inMDR
+//			temp = inMDR.poll();
+//
+//			if(temp != null){
+//				//check
+//				//chunk
+//
+//				if(temp.getType().equals("CHUNK")){
+//
+//					String id = temp.getFileId() + "_" + temp.getChunkNr();
+//
+//					if(expectChunk.containsKey(id)){
+//
+//						expectChunk.replace(id, temp);
+//
+//						//TODO send to config
+//
+//					} else
+//						if(toSendChunk.containsKey(id)){
+//
+//							//the thread will check
+//							//	1 - a chunk was already sent
+//							//  0 - a chunk was not sent
+//							temp.setRepDegree(1);
+//							toSendChunk.replace(id, temp);							
+//						}
+//
+//
+//
+//				}
+//			}
+//
+//
+//
+//			//TODO actualizar os repdegrees conforme o que estiver nos expect e tosend
+//			//TODO limpar os pedidos que foram á mais de 400ms
+//
+//			try {
+//				Thread.sleep(20);
+//			} catch (InterruptedException e) {
+//
+//			}
+//
+//		}
+//
+//
+//
+//	}
 
 	private static void sendMessage(String type, Message temp,
 			final ConcurrentHashMap<String, Message> hash, 
