@@ -1,21 +1,25 @@
 package main;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+public class Interface extends JFrame {
+
+    JTree tree = new JTree();
+    JPopupMenu menuFile = new JPopupMenu();
+    JPopupMenu menuChunk = new JPopupMenu();
+    private DefaultMutableTreeNode selectedNode;
+
+    public Interface() {
 
 
-public class Interface extends JFrame
-{
-    private JTree tree;
-    private JLabel selectedLabel;
-
-    public Interface()
-    {
         File filesFolder = new File("data/files");
         File[] listOfFiles = filesFolder.listFiles();
         File chunksFolder = new File("data/chunks");
@@ -23,8 +27,8 @@ public class Interface extends JFrame
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Data");
 
         DefaultMutableTreeNode filesNode = new DefaultMutableTreeNode("Files");
-            for (int i = 0; i < listOfFiles.length; i++)
-        filesNode.add(new DefaultMutableTreeNode(listOfFiles[i]));
+        for (int i = 0; i < listOfFiles.length; i++)
+            filesNode.add(new DefaultMutableTreeNode(listOfFiles[i]));
 
         DefaultMutableTreeNode chunksNode = new DefaultMutableTreeNode("Chunks");
         for (int i = 0; i < listOfChunks.length; i++)
@@ -36,37 +40,72 @@ public class Interface extends JFrame
         //create the tree by passing in the root node
         tree = new JTree(root);
 
-        //ImageIcon imageIcon = new ImageIcon(TreeExample.class.getResource("file.png"));
-        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-       // renderer.setLeafIcon(imageIcon);
 
-        tree.setCellRenderer(renderer);
-        tree.setShowsRootHandles(true);
-        tree.setRootVisible(false);
-        add(new JScrollPane(tree));
+        JMenuItem item = new JMenuItem("Delete");
+        item.addActionListener(getDeleteActionListener());
+        menuFile.add(item);
 
-        selectedLabel = new JLabel();
-        add(selectedLabel, BorderLayout.SOUTH);
+        JMenuItem item2 = new JMenuItem("add");
+        item2.addActionListener(getAddActionListener());
+        menuFile.add(item2);
 
-        tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                selectedLabel.setText(selectedNode.getUserObject().toString());
-                if(selectedNode.getParent().toString().equals("Chunks"))
-                    System.out.println("jjjk");
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Container content = getContentPane();
+        content.add(tree, BorderLayout.CENTER);
+        tree.addMouseListener(new MouseAdapter() {
+
+            public void mousePressed(MouseEvent arg0) {
+                if (arg0.getButton() == MouseEvent.BUTTON3) {
+
+                    DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+                    if (selectedNode.getParent().toString().equals("Files")) {
+                        menuFile.show(tree, arg0.getX(), arg0.getY());
+                    }
+                }
+                super.mousePressed(arg0);
             }
         });
-
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Files");
-        this.setSize(200, 200);
-        this.setVisible(true);
+        setSize(300, 300);
+        setVisible(true);
     }
 
-    public static void main(String[] args)
-    {
-new Interface();
+    private ActionListener getAddActionListener() {
+        return new ActionListener() {
 
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                if (selectedNode != null) {
+                    System.out.println("pressed" + selectedNode);
+                    DefaultMutableTreeNode n = new DefaultMutableTreeNode("added");
+                    selectedNode.add(n);
+                    tree.repaint();
+                    tree.updateUI();
+                }
+            }
+        };
+    }
+
+    private ActionListener getDeleteActionListener() {
+        return new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                if (selectedNode != null) {
+                    try {
+                        Config.deleteFile(selectedNode.toString());
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("pressed" + selectedNode);
+                }
+            }
+        };
+    }
+
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        new Interface();
     }
 }

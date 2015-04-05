@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Iterator;
 
 
 public class Config {
@@ -23,7 +24,7 @@ public class Config {
     //private long freeSpace
 
 
-    private void newFileInPath() throws IOException, NoSuchAlgorithmException {
+    public static void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
         String [] nextLine;
         FileWriter fileWriter = new FileWriter("csv\\fileslist.csv", true);
@@ -59,7 +60,7 @@ public class Config {
 
 
 
-    private void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
+    private static void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
 
         File receivedFile = new File(fileName);
         FileInputStream inputStream = new FileInputStream(receivedFile);
@@ -131,8 +132,46 @@ public class Config {
 
     }
 
+    public static void deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
 
-    private String toSHA256(String filename) throws NoSuchAlgorithmException {
+        File file = new File("data\\files\\"+fileName);
+        File chunksFolder = new File("data\\chunks\\");
+        File[] listOfFiles = chunksFolder.listFiles();
+
+        Set set = numberOfChunks.keySet();
+        Set set2 = chunksOfOurFiles.keySet();
+
+        Iterator iterator = set.iterator();
+        Iterator iterator2 = set2.iterator();
+
+        while (iterator.hasNext())
+        {
+            Object o = iterator.next();
+            if (o.toString().equals(fileName))
+                numberOfChunks.remove(o.toString());
+        }
+
+        while (iterator2.hasNext())
+        {
+            Object o = iterator2.next();
+            if (o.toString().contains(toSHA256(fileName)))
+                chunksOfOurFiles.remove(o.toString());
+        }
+
+        Parser.removeFileFromCsv(fileName);
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile() && listOfFiles[i].getName().contains(toSHA256(fileName))) {
+                File auxFile = new File("data\\chunks\\" + listOfFiles[i].getName());
+                auxFile.delete();
+            }
+        }
+
+        file.delete();
+
+    }
+
+    public static String toSHA256(String filename) throws NoSuchAlgorithmException {
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(filename.getBytes());
@@ -145,7 +184,6 @@ public class Config {
 
         return sb.toString();
     }
-
 
     public void delete(Message temp) {
         // TODO DELETE de um fileID e seus chunks
