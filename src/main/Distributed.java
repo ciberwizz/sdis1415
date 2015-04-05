@@ -18,7 +18,8 @@ public class Distributed {
 	public static ConcurrentHashMap<String, Message> expectStore = new ConcurrentHashMap<String, Message>();
 
 	//for us to send
-	public static ConcurrentHashMap<String, Message> toSendChunk = new ConcurrentHashMap<String, Message>();
+	public static ConcurrentHashMap<String, Message> toSendChunk = new ConcurrentHashMap<String, Message>();	
+	public static ConcurrentHashMap<String, Message> toSendPutChunk = new ConcurrentHashMap<String, Message>();
 	public static ConcurrentHashMap<String, Message> toSendStore = new ConcurrentHashMap<String, Message>();
 
 
@@ -116,7 +117,17 @@ public class Distributed {
 					break;
 
 				case "REMOVED":
-					config.decRepDegree(temp);
+					//Chunk if repdegree < objectiveRepDegree
+					Chunk chk = config.decRepDegree(temp);
+					if( chk != null){
+						
+						t = new Message("PUTCHUNK", chk);
+						
+						temp.setRepDegree(0);
+						toSendPutChunk.put(id, temp);
+
+						sendMessage("PUTCHUNK",t,toSendPutChunk, new Communication(chMdb, chMdbPort));
+					}
 
 					break;
 
@@ -138,9 +149,21 @@ public class Distributed {
 				if(temp.getType().equals("PUTCHUNK")){
 
 					String id = temp.getFileId() + "_" + temp.getChunkNr();
-					temp.setRepDegree(0);
-					toSendStore.put(id,temp);
-					sendMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
+					
+					if(toSendPutChunk.containsKey(id)){
+						
+						Message m = toSendPutChunk.get(id);
+						
+						m.incRepDegree();
+						toSendPutChunk.replace(id, m);
+						
+					} else {
+					
+					
+						temp.setRepDegree(0);
+						toSendStore.put(id,temp);
+						sendMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
+					}
 
 				}
 
@@ -210,24 +233,16 @@ public class Distributed {
 
 		switch (type) {
 		case "STORED":
-
-			//easy way to make a clean copy xD
-
-			//clean copy
-			out_m = new Message(temp);
-
-			out_m.setType(type);
-
-			break;
-
+		case "PUTCHUNK":
 		case "CHUNK":
 			out_m = new Message(temp);
 			out_m.setType(type);
 			break;
-
+			
+			
 
 		default:
-
+			System.err.println("Wrong type to send a message");
 			out_m = null;
 			break;
 		}		
@@ -246,7 +261,11 @@ public class Distributed {
 
 					//TODO retries can be 400*2^n max
 					int sleep = (int) (400 - out.getElapsed());
-					sleep = rnd.nextInt(sleep);
+					
+					if(sleep>0)
+						sleep = rnd.nextInt(sleep);
+					else
+						sleep = rnd.nextInt(400);
 
 					System.out.println("out.getElapsed: " + out.getElapsed());
 					System.out.println("max: " + sleep);
@@ -259,35 +278,33 @@ public class Distributed {
 						e.printStackTrace();
 					}
 					
+					switch (out.getType()) {
+					
 					//check if someone allready reponded to the getchunk
-					if(out.getType().equals("CHUNK")){
+					case "CHUNK":
+					//check if someone allready asked to putchunk the same id
+					case "PUTCHUNK":
 						if(hash.containsKey(out.getId())){
 							if(hash.get(out.getId()).getRepDegree()>0){
+								System.out.println("repdegree>0");
 								return;
 							}
 						}
+						break;
+						
+
+					default:
+						break;
 					}
+
 
 					com.send(out.getData());
 					System.out.println("sent in: " + out.getElapsed());
 
-					switch(out.getType()){
-
-					case "STORED":
+					if(out.getType().equals("STORED")){
 						Message m  = new Message( hash.get(out.getId()));
 						
 						Config.theirChunks.put(m.getId(), m.getChunk());
-						
-						break;
-						
-					case "CHUNK":
-						
-						
-						
-						break;
-
-					default:
-						break;
 
 					}
 

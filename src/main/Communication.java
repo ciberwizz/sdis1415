@@ -10,9 +10,35 @@ import java.net.MulticastSocket;
 public class Communication {
 
 	public static int MAX_SIZE = 64*1024; 
+
 	private	String channel = new String();
 	private int port;
 
+	
+
+	public static int getMAX_SIZE() {
+		return MAX_SIZE;
+	}
+
+	public static void setMAX_SIZE(int mAX_SIZE) {
+		MAX_SIZE = mAX_SIZE;
+	}
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
 	public Communication(String ch, int ports){
 		this.channel = ch;
 		this.port = ports;		

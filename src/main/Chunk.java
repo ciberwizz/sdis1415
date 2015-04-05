@@ -80,6 +80,15 @@ public class Chunk {
     	return this.data;
     }
     
+    
+    public void decRepDegree(){
+    	repDegree--;
+    }
+    
+	public void incRepDegree() {
+		repDegree++;		
+	}
+    
     public void saveToFile(){
     	//TODO saveToFile(){
     }
@@ -98,4 +107,5 @@ public class Chunk {
     		
     	}
     }
+
 }

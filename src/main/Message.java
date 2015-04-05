@@ -103,6 +103,7 @@ public class Message {
 			this.chunkNr = Integer.parseInt(temp[3]);
 			this.repDegree = objectiveRepDegree  = Integer.parseInt(temp[4]);
 			
+			
 			break;
 			
 		default:
@@ -117,6 +118,7 @@ public class Message {
 
 
 		chunk = new Chunk( this.chunkNr, this.fileId, "", this.repDegree);
+		chunk.setObjectiveRepDegree(objectiveRepDegree);
 
 		if( body.length >0){
 			chunk.setData(body);
@@ -136,6 +138,7 @@ public class Message {
 		
 		
 		chunk = new Chunk(chunkNr, fileId, m.getChunk().getPath(), repDegree);
+		chunk.setObjectiveRepDegree(objectiveRepDegree);
 		if(m.getChunk().getData() != null){
 			chunk.setData(m.getChunk().getData());
 		}
@@ -198,7 +201,7 @@ public class Message {
 
 		case "PUTCHUNK":
 
-			str = "PUTCHUNK " + "1.0 " + str + " " + repDegree + " " + CRLF + CRLF; //TODO + chunk.getDados() 
+			str = "PUTCHUNK " + "1.0 " + str + " " + objectiveRepDegree + " " + CRLF + CRLF; //TODO + chunk.getDados() 
 
 			break;
 
@@ -285,7 +288,9 @@ public class Message {
 	}
 	
 	public void incRepDegree(){
+		
 		this.repDegree++;
+		
 	}
 	
 	public String getId(){

@@ -7,7 +7,9 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -152,10 +154,36 @@ public class Config {
 
     }
 
-    public void decRepDegree(Message temp) {
-        // TODO decrementar o repdegree associado ao chunk temp4
-        // caso o repdegree for menor que o desejado
-        //		temos de enviar um putchunk se já não tiver sido enviado por alguem
+    // return
+    //     - chunk - objectiveRepdegree > repdegree
+    //     - null - objectiveRepdegree <= repdegree
+    public Chunk decRepDegree(Message temp) {
+    	
+    	String id = temp.getId();
+    	
+    	Chunk chk = null;
+    	
+    	if(theirChunks.containsKey(id)){
+    		chk = theirChunks.get(id);
+    		
+    		chk.decRepDegree();
+    		
+    		theirChunks.replace(id, chk);
+    		
+    		
+    	} else
+    		if(chunksOfOurFiles.containsKey(id)){
+        		chk = chunksOfOurFiles.get(id);
+        		
+        		chk.decRepDegree();
+        		
+        		chunksOfOurFiles.replace(id, chk);
+    			
+    		}
+    	
+    
+    	
+    	return chk;
 
     }
 
