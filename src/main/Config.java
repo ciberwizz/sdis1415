@@ -8,11 +8,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Iterator;
-
 
 public class Config {
 
@@ -23,6 +21,18 @@ public class Config {
     private long usedSpace;
     //private long freeSpace
 
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+
+        try {
+            newFileInPath();
+restoreFile("a.png");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
@@ -52,17 +62,16 @@ public class Config {
 
         for (int h = 0; h < mainList.size(); h++) {
             csvWriter.writeNext(new String[]{mainList.get(h)});
-            splitFile("data\\files\\"+mainList.get(h));
+            splitFile(mainList.get(h));
         }
         csvWriter.close();
 
     }
 
 
-
     private static void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
 
-        File receivedFile = new File(fileName);
+        File receivedFile = new File("data\\files\\"+fileName);
         FileInputStream inputStream = new FileInputStream(receivedFile);
         FileOutputStream outputStream = null;
         String fileId = toSHA256(fileName);
@@ -103,13 +112,13 @@ public class Config {
     }
 
 
-    private void restoreFile(String fileName) throws IOException, NoSuchAlgorithmException {
+    public static void restoreFile(String fileName) throws IOException, NoSuchAlgorithmException {
         int nChunks = numberOfChunks.get(fileName);
         ArrayList<File> cfile = new ArrayList<File>();
         String fileId = toSHA256(fileName);
-        byte chunkData[] = null;
+        byte chunkData[];
         InputStream inputStream = null;
-        OutputStream outputStream = new FileOutputStream(new File(fileName));
+        OutputStream outputStream = new FileOutputStream(new File("data\\files\\"+fileName));
 
         for (int i = 0; i < nChunks; i++) {
             File file = new File(fileId + "_" + i);
@@ -118,19 +127,17 @@ public class Config {
 
 
         for (File file : cfile) {
-            inputStream = new FileInputStream(file);
+            inputStream = new FileInputStream(new File("data\\chunks\\"+file));
             chunkData = new byte[(int) file.length()];
             inputStream.read(chunkData, 0, (int) file.length());
             outputStream.write(chunkData);
             outputStream.flush();
-            chunkData = null;
             inputStream.close();
-            inputStream = null;
         }
         outputStream.close();
-        outputStream = null;
 
     }
+
 
     public static void deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
 
@@ -171,6 +178,7 @@ public class Config {
 
     }
 
+
     public static String toSHA256(String filename) throws NoSuchAlgorithmException {
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -192,36 +200,10 @@ public class Config {
 
     }
 
-    // return
-    //     - chunk - objectiveRepdegree > repdegree
-    //     - null - objectiveRepdegree <= repdegree
-    public Chunk decRepDegree(Message temp) {
-    	
-    	String id = temp.getId();
-    	
-    	Chunk chk = null;
-    	
-    	if(theirChunks.containsKey(id)){
-    		chk = theirChunks.get(id);
-    		
-    		chk.decRepDegree();
-    		
-    		theirChunks.replace(id, chk);
-    		
-    		
-    	} else
-    		if(chunksOfOurFiles.containsKey(id)){
-        		chk = chunksOfOurFiles.get(id);
-        		
-        		chk.decRepDegree();
-        		
-        		chunksOfOurFiles.replace(id, chk);
-    			
-    		}
-    	
-    
-    	
-    	return chk;
+    public void decRepDegree(Message temp) {
+        // TODO decrementar o repdegree associado ao chunk temp4
+        // caso o repdegree for menor que o desejado
+        //		temos de enviar um putchunk se já não tiver sido enviado por alguem
 
     }
 
