@@ -3,8 +3,7 @@ package main;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -21,9 +20,9 @@ public class Interface extends JFrame {
     public Interface() {
 
 
-        File filesFolder = new File("data\\files");
+        File filesFolder = new File("data/files");
         File[] listOfFiles = filesFolder.listFiles();
-        File chunksFolder = new File("data\\chunks");
+        File chunksFolder = new File("data/chunks");
         File[] listOfChunks = chunksFolder.listFiles();
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Data");
 
@@ -106,8 +105,7 @@ public class Interface extends JFrame {
         };
     }
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException {
-        Config.newFileInPath();
-        Config.restoreFile("aa.png");
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        new Interface();
     }
 }

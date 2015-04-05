@@ -5,7 +5,13 @@ import au.com.bytecode.opencsv.CSVWriter;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,58 +86,63 @@ public class Parser {
         File filesList = new File("csv\\fileslist.csv");
         File auxFile = new File("csv\\auxFile.csv");
 
-        CSVReader cvsReader = new CSVReader(new FileReader(filesList), ',', '\"', '@');
-        CSVWriter csvWriter = new CSVWriter(new FileWriter(auxFile));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filesList));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(auxFile));
 
-        String[] row;
+        String remove = "\""+filename+"\"";
+        String line;
 
-        while ((row = cvsReader.readNext()) != null) {
-            if(row[0].equals(filename)) continue;
-            else{
-                csvWriter.writeNext(row);}
+        while((line = bufferedReader.readLine()) != null) {
+            String trimmedLine = line.trim();
+            if(trimmedLine.equals(remove)) continue;
+            bufferedWriter.write(line + System.getProperty("line.separator"));
         }
-        csvWriter.close();
-        cvsReader.close();
+        bufferedWriter.close();
+        bufferedReader.close();
         filesList.delete();
         auxFile.renameTo(filesList);
 
         File chunks = new File("csv\\chunks.csv");
         File auxFile2 = new File("csv\\auxFile2.csv");
 
-        CSVReader cvsReader2 = new CSVReader(new FileReader(chunks), ',', '\"', '@');
-        CSVWriter csvWriter2 = new CSVWriter(new FileWriter(auxFile2));
-        
-        String[] row2;
+        BufferedReader bufferedReader2 = new BufferedReader(new FileReader(chunks));
+        BufferedWriter bufferedWriter2 = new BufferedWriter(new FileWriter(auxFile2));
 
-        while ((row2 = cvsReader2.readNext()) != null) {
-            if(row2[2].equals("data\\files\\"+filename)) continue;
-            else{
-            csvWriter2.writeNext(row2);}
+        String remove2 = "\""+Config.toSHA256(filename)+"\"";
+        String line2;
+
+        while((line2 = bufferedReader2.readLine()) != null) {
+            String trimmedLine2 = line2.trim();
+            if(trimmedLine2.contains(remove2)) continue;
+            bufferedWriter2.write(line + System.getProperty("line.separator"));
         }
-        csvWriter2.close();
-        cvsReader2.close();
+        bufferedWriter2.close();
+        bufferedReader2.close();
         chunks.delete();
         auxFile2.renameTo(chunks);
 
         File nchunks = new File("csv\\nchunks.csv");
         File auxFile3 = new File("csv\\auxFile3.csv");
 
-        CSVReader cvsReader3 = new CSVReader(new FileReader(nchunks), ',', '\"', '@');
-        CSVWriter csvWriter3 = new CSVWriter(new FileWriter(auxFile3));
+        BufferedReader bufferedReader3 = new BufferedReader(new FileReader(nchunks));
+        BufferedWriter bufferedWriter3 = new BufferedWriter(new FileWriter(auxFile3));
 
-        String[] row3;
+        String remove3 = "\""+filename+"\"";
+        String line3;
 
-        while ((row3 = cvsReader3.readNext()) != null) {
-            if(row3[0].equals(filename)) continue;
-            else{
-                csvWriter3.writeNext(row3);}
+        while((line3 = bufferedReader3.readLine()) != null) {
+            String trimmedLine3 = line3.trim();
+            if(trimmedLine3.contains(remove3)) continue;
+            bufferedWriter3.write(line + System.getProperty("line.separator"));
         }
-        csvWriter3.close();
-        cvsReader3.close();
+        bufferedWriter3.close();
+        bufferedReader3.close();
         nchunks.delete();
         auxFile3.renameTo(nchunks);
 
     }
+
+
 
     public static void mapCsvToHash(ConcurrentHashMap<String, Integer> numberOfChunks) throws IOException {
 

@@ -8,9 +8,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Iterator;
+
 
 public class Config {
 
@@ -21,18 +23,6 @@ public class Config {
     private long usedSpace;
     //private long freeSpace
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-
-        try {
-            newFileInPath();
-restoreFile("a.png");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
@@ -62,16 +52,17 @@ restoreFile("a.png");
 
         for (int h = 0; h < mainList.size(); h++) {
             csvWriter.writeNext(new String[]{mainList.get(h)});
-            splitFile(mainList.get(h));
+            splitFile("data\\files\\"+mainList.get(h));
         }
         csvWriter.close();
 
     }
 
 
+
     private static void splitFile(String fileName) throws IOException, NoSuchAlgorithmException {
 
-        File receivedFile = new File("data\\files\\"+fileName);
+        File receivedFile = new File(fileName);
         FileInputStream inputStream = new FileInputStream(receivedFile);
         FileOutputStream outputStream = null;
         String fileId = toSHA256(fileName);
@@ -112,13 +103,13 @@ restoreFile("a.png");
     }
 
 
-    public static void restoreFile(String fileName) throws IOException, NoSuchAlgorithmException {
+    private void restoreFile(String fileName) throws IOException, NoSuchAlgorithmException {
         int nChunks = numberOfChunks.get(fileName);
         ArrayList<File> cfile = new ArrayList<File>();
         String fileId = toSHA256(fileName);
-        byte chunkData[];
+        byte chunkData[] = null;
         InputStream inputStream = null;
-        OutputStream outputStream = new FileOutputStream(new File("data\\files\\"+fileName));
+        OutputStream outputStream = new FileOutputStream(new File(fileName));
 
         for (int i = 0; i < nChunks; i++) {
             File file = new File(fileId + "_" + i);
@@ -127,17 +118,19 @@ restoreFile("a.png");
 
 
         for (File file : cfile) {
-            inputStream = new FileInputStream(new File("data\\chunks\\"+file));
+            inputStream = new FileInputStream(file);
             chunkData = new byte[(int) file.length()];
             inputStream.read(chunkData, 0, (int) file.length());
             outputStream.write(chunkData);
             outputStream.flush();
+            chunkData = null;
             inputStream.close();
+            inputStream = null;
         }
         outputStream.close();
+        outputStream = null;
 
     }
-
 
     public static void deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
 
@@ -178,7 +171,6 @@ restoreFile("a.png");
 
     }
 
-
     public static String toSHA256(String filename) throws NoSuchAlgorithmException {
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -200,10 +192,36 @@ restoreFile("a.png");
 
     }
 
-    public void decRepDegree(Message temp) {
-        // TODO decrementar o repdegree associado ao chunk temp4
-        // caso o repdegree for menor que o desejado
-        //		temos de enviar um putchunk se já não tiver sido enviado por alguem
+    // return
+    //     - chunk - objectiveRepdegree > repdegree
+    //     - null - objectiveRepdegree <= repdegree
+    public Chunk decRepDegree(Message temp) {
+    	
+    	String id = temp.getId();
+    	
+    	Chunk chk = null;
+    	
+    	if(theirChunks.containsKey(id)){
+    		chk = theirChunks.get(id);
+    		
+    		chk.decRepDegree();
+    		
+    		theirChunks.replace(id, chk);
+    		
+    		
+    	} else
+    		if(chunksOfOurFiles.containsKey(id)){
+        		chk = chunksOfOurFiles.get(id);
+        		
+        		chk.decRepDegree();
+        		
+        		chunksOfOurFiles.replace(id, chk);
+    			
+    		}
+    	
+    
+    	
+    	return chk;
 
     }
 
