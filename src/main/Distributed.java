@@ -95,7 +95,7 @@ public class Distributed {
 						temp.setRepDegree(0);
 						toSendChunk.put(id, temp);
 
-						sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
+						sendResponseMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
 
 
 					} else 
@@ -106,7 +106,7 @@ public class Distributed {
 							temp.setRepDegree(0);
 							toSendChunk.put(id, temp);
 
-							sendMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
+							sendResponseMessage("CHUNK",t,toSendChunk, new Communication(chMdr, chMdrPort));
 						}
 					break;
 
@@ -126,7 +126,7 @@ public class Distributed {
 						temp.setRepDegree(0);
 						toSendPutChunk.put(id, temp);
 
-						sendMessage("PUTCHUNK",t,toSendPutChunk, new Communication(chMdb, chMdbPort));
+						sendResponseMessage("PUTCHUNK",t,toSendPutChunk, new Communication(chMdb, chMdbPort));
 					}
 
 					break;
@@ -157,13 +157,13 @@ public class Distributed {
 						m.incRepDegree();
 						toSendPutChunk.replace(id, m);
 						
-					} else {
+					} 
 					
 					
 						temp.setRepDegree(0);
 						toSendStore.put(id,temp);
-						sendMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
-					}
+						sendResponseMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
+					
 
 				}
 
@@ -221,11 +221,9 @@ public class Distributed {
 
 	}
 
-	private static void sendMessage(String type, Message temp,
+	private static void sendResponseMessage(String type, Message temp,
 			final ConcurrentHashMap<String, Message> hash, 
 			final Communication comm) {
-		// TODO criarThread que envia o chunk em 0-400ms
-		// 		só se não tiver sido enviado. verificar o toSendChunk
 
 		final Message out_m;
 
@@ -306,6 +304,89 @@ public class Distributed {
 						
 						Config.theirChunks.put(m.getId(), m.getChunk());
 
+					}
+
+
+				}
+			}
+
+		};
+
+		th.start();
+	}
+	
+	public static void sendRequestMessage(String type, Message temp,
+			final ConcurrentHashMap<String, Message> hash, 
+			final Communication comm) {
+
+		final Message out_m;
+
+		switch (type) {
+		case "GETCHUNK":
+		case "PUTCHUNK":
+		case "REMOVED":
+		case "DELETED":
+			out_m = new Message(temp);
+			out_m.setType(type);
+			break;
+			
+
+		default:
+			System.err.println("Wrong type to send a message");
+			out_m = null;
+			break;
+		}		
+
+		Thread th = new Thread(){
+			Message out = out_m;
+			Communication com = comm;
+			@Override
+			public void run() {
+
+				super.run();
+
+				Random rnd = new Random();				
+
+				if(out != null){
+
+					int sleep = rnd.nextInt(400);
+
+					System.out.println("sending: ");
+					System.out.println("max: " + sleep);
+
+					out.setObjectiveTime(sleep);
+
+					try {
+						Thread.sleep(sleep);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+
+					com.send(out.getData());
+					System.out.println("sent in: " + out.getElapsed());
+					
+					out.setRepDegree(0);
+
+					switch (out.getType()) {
+					
+					
+					case "PUTCHUNK":	
+						out.setType("STORED");
+						
+						hash.put(out.getId(), out);
+						
+						break;
+					case "GETCHUNK":
+						out.setType("CHUNK");
+						
+						hash.put(out.getId(), out);
+						
+						break;
+						
+
+					default:
+						break;
 					}
 
 

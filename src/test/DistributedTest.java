@@ -39,6 +39,16 @@ public class DistributedTest {
 
 		//TODO config read csv
 	}
+	
+	/*
+	 * 
+	 * receiving commmands
+	 * 		- putchunk
+	 * 		- getchunk
+	 * 		- removed
+	 * 		- stored 
+	 */
+	
 
 	@Test
 	public void receive_putchunk() {
@@ -333,14 +343,68 @@ public class DistributedTest {
 		b = comm.receive();
 		stored  = new String(b);
 		
+		
+		main.interrupt();
+		
 		System.out.println("response to REMOVED:");
 		System.out.println(stored);
 		
 		assertEquals("STORED 1.0 sha5 5 "+ crlf+crlf ,stored);
 
-		main.interrupt();
+
 		
 	}
+	
+	
+	/*
+	 * 
+	 * sending commands
+	 * 		- putchunk
+	 * 		- getchunk
+	 * 		- removed
+	 * 
+	 */
+	
+	@Test
+	public void sending_putchunk() {
+		
+		Thread main = thMain();
+
+		//MDB
+		Communication comm = new Communication("224.0.0.8", 9999);
+
+		Message msg = new Message("PUTCHUNK","sha5",5,3 );
+		String data = "data";
+		msg.getChunk().setData(data.getBytes());
+		
+		
+		Distributed.sendRequestMessage(msg.getType(),msg,
+				Distributed.expectStore,comm);
+		
+		
+		byte[] putchunk = comm.receive();
+		
+		assertEquals(new String(msg.getData()), 
+				new String(putchunk));
+		
+		msg.setType("STORED");
+		
+		Distributed.inMC.add(new Message(msg));
+		Distributed.inMC.add(new Message(msg));
+		Distributed.inMC.add(new Message(msg));
+		
+		try {
+			Thread.sleep(450);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		assertEquals(3, Distributed.expectStore.get(msg.getId()).getRepDegree());
+		
+		main.interrupt();
+	}
+	
+	
 
 	public Thread thMain(){
 
