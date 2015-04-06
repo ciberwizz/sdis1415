@@ -79,9 +79,12 @@ public class DistributedTest {
 
 
 		assertEquals("STORED 1.0 sha5 5 "+ crlf+crlf ,stored);
+
 		assertTrue(Config.theirChunks.containsKey(msg.getId()));
 
-
+		Chunk chk = Config.theirChunks.get(msg.getId());
+		
+		assertEquals(data, new String(chk.getData()));
 	}
 
 
@@ -99,7 +102,7 @@ public class DistributedTest {
 		Distributed.inMC.add(msg);
 
 		try {
-			Thread.sleep(400);
+			Thread.sleep(300);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -119,11 +122,11 @@ public class DistributedTest {
 		Message msgPut = new Message("PUTCHUNK","sha5",5,3 );
 
 		Distributed.inMDB.add(msgPut);
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(100);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		Message msg = new Message("STORED","sha5",5,3 );
 
 
@@ -140,9 +143,9 @@ public class DistributedTest {
 
 		main.interrupt();
 
-		if(Distributed.toSendStore.containsKey(msg.getId())) {
+		if(Config.theirChunks.containsKey(msg.getId())) {
 
-			Message t = Distributed.toSendStore.get(msg.getId());
+			Chunk t = Config.theirChunks.get(msg.getId());
 
 			assertEquals( 4 , t.getRepDegree());
 		} else fail("asd");
@@ -377,6 +380,7 @@ public class DistributedTest {
 		String data = "data";
 		msg.getChunk().setData(data.getBytes());
 
+		Config.chunksOfOurFiles.put(msg.getId(), msg.getChunk());
 
 		Distributed.sendRequestMessage(msg.getType(),msg,
 				Distributed.expectStore,comm);
@@ -401,7 +405,7 @@ public class DistributedTest {
 
 
 		main.interrupt();
-		assertEquals(3, Distributed.expectStore.get(msg.getId()).getRepDegree());
+		assertEquals(3, Config.chunksOfOurFiles.get(msg.getId()).getRepDegree());
 
 
 	}
