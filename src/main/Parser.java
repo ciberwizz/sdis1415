@@ -104,7 +104,6 @@ public class Parser {
         String[] row2;
 
         while ((row2 = cvsReader2.readNext()) != null) {
-            if(row2[2].equals("data/files/"+filename)) continue;
             else{
             csvWriter2.writeNext(row2);}
         }
