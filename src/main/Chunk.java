@@ -106,4 +106,9 @@ public class Chunk {
     		
     	}
     }
+
+	public void write() {
+		// TODO write() {
+		
+	}
 }
