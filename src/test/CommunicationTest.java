@@ -1,5 +1,6 @@
 package test;
 
+import static org.junit.Assert.fail;
 import main.Communication;
 
 import org.junit.Test;
@@ -36,6 +37,11 @@ public class CommunicationTest {
 
 
 		assert(str.equals("uniTest"));
+	}
+	
+	@Test
+	public void ignore_from_same_port(){
+		fail("not ignoring");
 	}
 
 }

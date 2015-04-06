@@ -185,6 +185,7 @@ public class Distributed {
 
 					if(expectChunk.containsKey(id)){
 
+						temp.setRepDegree(1);
 						expectChunk.replace(id, temp);
 
 						//TODO send to config
@@ -207,6 +208,7 @@ public class Distributed {
 
 
 			//TODO actualizar os repdegrees conforme o que estiver nos expect e tosend
+			//TODO actualizar o chunk data e enviar para o config fazer escrita
 			//TODO limpar os pedidos que foram á mais de 400ms
 
 			try {

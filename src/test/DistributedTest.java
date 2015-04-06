@@ -39,7 +39,7 @@ public class DistributedTest {
 
 		//TODO config read csv
 	}
-	
+
 	/*
 	 * 
 	 * receiving commmands
@@ -48,7 +48,7 @@ public class DistributedTest {
 	 * 		- removed
 	 * 		- stored 
 	 */
-	
+
 
 	@Test
 	public void receive_putchunk() {
@@ -83,7 +83,7 @@ public class DistributedTest {
 
 
 	}
-	
+
 
 
 	@Test
@@ -257,12 +257,12 @@ public class DistributedTest {
 		main.interrupt();
 
 		assertEquals( 2 , Config.theirChunks.get(id).getRepDegree());
-		
+
 	}
-	
+
 	@Test
 	public void receive_removed_trigger_putchunk(){
-		
+
 		Thread main = thMain();
 
 		Communication comm = new Communication("224.0.0.7", 9999);
@@ -276,7 +276,7 @@ public class DistributedTest {
 		byte[] b = comm.receive();
 
 
-		
+
 
 
 		String stored  = new String(b);
@@ -285,31 +285,31 @@ public class DistributedTest {
 
 
 		assertEquals("STORED 1.0 sha5 5 "+ crlf+crlf ,stored);
-		
+
 		Message msgRemoved = new Message("REMOVED","sha5",5,3 );
-		
+
 		Distributed.inMC.add(msgRemoved);
-		
+
 		comm.setChannel("224.0.0.8");
-		
+
 		b = comm.receive();
 		stored  = new String(b);
-		
+
 		System.out.println("response to REMOVED:");
 		System.out.println(stored);
-		
+
 		msg.setType("PUTCHUNK");
-		
+
 		String str = new String(msg.getData());
 		assertEquals( str ,stored);
 
 		main.interrupt();
-		
+
 	}
-	
+
 	@Test
 	public void receive_putchunk_removed_putchunk(){
-		
+
 		Thread main = thMain();
 
 		Communication comm = new Communication("224.0.0.7", 9999);
@@ -323,7 +323,7 @@ public class DistributedTest {
 		byte[] b = comm.receive();
 
 
-		
+
 
 
 		String stored  = new String(b);
@@ -332,30 +332,30 @@ public class DistributedTest {
 
 
 		assertEquals("STORED 1.0 sha5 5 "+ crlf+crlf ,stored);
-		
+
 		Message msgRemoved = new Message("REMOVED","sha5",5,3 );
-		
+
 		Distributed.inMC.add(msgRemoved);
 		Distributed.inMDB.add(msg);
 
 		comm.setChannel("224.0.0.7");
-		
+
 		b = comm.receive();
 		stored  = new String(b);
-		
-		
+
+
 		main.interrupt();
-		
+
 		System.out.println("response to REMOVED:");
 		System.out.println(stored);
-		
+
 		assertEquals("STORED 1.0 sha5 5 "+ crlf+crlf ,stored);
 
 
-		
+
 	}
-	
-	
+
+
 	/*
 	 * 
 	 * sending commands
@@ -364,10 +364,10 @@ public class DistributedTest {
 	 * 		- removed
 	 * 
 	 */
-	
+
 	@Test
 	public void sending_putchunk() {
-		
+
 		Thread main = thMain();
 
 		//MDB
@@ -376,35 +376,80 @@ public class DistributedTest {
 		Message msg = new Message("PUTCHUNK","sha5",5,3 );
 		String data = "data";
 		msg.getChunk().setData(data.getBytes());
-		
-		
+
+
 		Distributed.sendRequestMessage(msg.getType(),msg,
 				Distributed.expectStore,comm);
-		
-		
+
+
 		byte[] putchunk = comm.receive();
-		
+
 		assertEquals(new String(msg.getData()), 
 				new String(putchunk));
-		
+
 		msg.setType("STORED");
-		
+
 		Distributed.inMC.add(new Message(msg));
 		Distributed.inMC.add(new Message(msg));
 		Distributed.inMC.add(new Message(msg));
-		
+
 		try {
 			Thread.sleep(450);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		assertEquals(3, Distributed.expectStore.get(msg.getId()).getRepDegree());
-		
+
+
 		main.interrupt();
+		assertEquals(3, Distributed.expectStore.get(msg.getId()).getRepDegree());
+
+
 	}
-	
-	
+
+	@Test
+	public void send_putchunk_repeat(){
+		//TODO repeat 5 times each time wait for 400*n^2
+		fail("fail");
+	}
+
+	@Test
+	public void send_getchunk() {
+
+		Thread main = thMain();
+
+		//MC
+		Communication comm = new Communication("224.0.0.7", 9999);
+
+		Message msg = new Message("GETCHUNK","sha5",5,3 );
+		String data = "data";
+		msg.getChunk().setData(data.getBytes());
+
+
+		Distributed.sendRequestMessage(msg.getType(),msg,
+				Distributed.expectChunk,comm);
+
+
+		byte[] putchunk = comm.receive();
+
+		assertEquals(new String(msg.getData()), 
+				new String(putchunk));
+
+		msg.setType("CHUNK");
+
+		Distributed.inMDR.add(new Message(msg));
+
+		try {
+			Thread.sleep(450);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+
+		main.interrupt();
+		
+		assertEquals(1, Distributed.expectChunk.get(msg.getId()).getRepDegree());
+	} 
+
 
 	public Thread thMain(){
 
