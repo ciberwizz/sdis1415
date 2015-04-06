@@ -21,18 +21,18 @@ public class Config {
     private long usedSpace;
     //private long freeSpace
 
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-
-        try {
-            newFileInPath();
-restoreFile("a.png");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) throws NoSuchAlgorithmException {
+//
+//        try {
+//            newFileInPath();
+//restoreFile("a.png");
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public static void newFileInPath() throws IOException, NoSuchAlgorithmException {
 
@@ -200,10 +200,36 @@ restoreFile("a.png");
 
     }
 
-    public void decRepDegree(Message temp) {
-        // TODO decrementar o repdegree associado ao chunk temp4
-        // caso o repdegree for menor que o desejado
-        //		temos de enviar um putchunk se já não tiver sido enviado por alguem
+    // return
+    //     - chunk - objectiveRepdegree > repdegree
+    //     - null - objectiveRepdegree <= repdegree
+    public Chunk decRepDegree(Message temp) {
+    	
+    	String id = temp.getId();
+    	
+    	Chunk chk = null;
+    	
+    	if(theirChunks.containsKey(id)){
+    		chk = theirChunks.get(id);
+    		
+    		chk.decRepDegree();
+    		
+    		theirChunks.replace(id, chk);
+    		
+    		
+    	} else
+    		if(chunksOfOurFiles.containsKey(id)){
+        		chk = chunksOfOurFiles.get(id);
+        		
+        		chk.decRepDegree();
+        		
+        		chunksOfOurFiles.replace(id, chk);
+    			
+    		}
+    	
+    
+    	
+    	return chk;
 
     }
 
