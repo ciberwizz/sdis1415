@@ -1,6 +1,8 @@
 package main;
 
+import java.io.IOException;
 import java.io.ObjectOutputStream.PutField;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -43,6 +45,16 @@ public class Distributed {
 
 		String chMdr = args[4];
 		int chMdrPort =  Integer.parseInt(args[5]);
+		
+		
+		
+		//load csvs
+		Config.loadCSV();
+		
+		//check for new files and split them
+		Config.newFileInPath();
+		
+		
 
 		Thread thMC = new Thread(new ThChannelRecv(chMc, chMcPort, inMC));
 		Thread thMDB = new Thread(new ThChannelRecv(chMdb, chMdbPort, inMDB));
@@ -112,7 +124,11 @@ public class Distributed {
 
 				case "DELETE":
 
-					config.delete(temp);
+					try {
+						Config.deleteFile(temp.getFileId());
+					} catch (NoSuchAlgorithmException | IOException e) {
+						e.printStackTrace();
+					}
 
 					break;
 

@@ -34,10 +34,13 @@ public class Config {
 //        }
 //    }
 
-    public static void newFileInPath() throws IOException, NoSuchAlgorithmException {
+    public static void newFileInPath()  {
 
         String [] nextLine;
-        FileWriter fileWriter = new FileWriter("csv/fileslist.csv", true);
+        FileWriter fileWriter;
+		try {
+			fileWriter = new FileWriter("csv/fileslist.csv", true);
+
         CSVWriter csvWriter = new CSVWriter(fileWriter);
         CSVReader reader = new CSVReader(new FileReader("csv/fileslist.csv"));
         ArrayList<String> csvContent = new ArrayList<String>();
@@ -65,6 +68,10 @@ public class Config {
             splitFile(mainList.get(h));
         }
         csvWriter.close();
+		} catch (IOException | NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
     }
 
@@ -232,5 +239,18 @@ public class Config {
     	return chk;
 
     }
+
+
+	public static void loadCSV() {
+		
+		try {
+			Parser.mapCsvToHash(numberOfChunks);
+			Parser.mapCsvToChunk(chunksOfOurFiles, theirChunks, numberOfChunks);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
+	}
 
 }
