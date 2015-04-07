@@ -291,7 +291,7 @@ public class Distributed {
 							temp1 = Config.chunksOfOurFiles.get(id);
 							temp1.setData(n.getChunk().getData());
 							Config.chunksOfOurFiles.replace(id, temp1);
-							temp1.write();
+							temp1.saveToFile();
 
 						} else
 							if(Config.theirChunks.containsKey(id)){
@@ -299,10 +299,10 @@ public class Distributed {
 								temp1 = Config.theirChunks.get(id);
 								temp1.setData(n.getChunk().getData());
 								Config.theirChunks.replace(id, temp1);
-								temp1.write();
+								temp1.saveToFile();
 							}
 
-						expectStore.remove(id);
+						expectChunk.remove(id);
 					}
 				}
 

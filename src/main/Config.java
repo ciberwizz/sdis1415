@@ -200,12 +200,6 @@ public class Config {
         return sb.toString();
     }
 
-    public void delete(Message temp) {
-        // TODO DELETE de um fileID e seus chunks
-        //criar uma thread para fazer o delete, assim não poe a main thread busy com IO
-
-
-    }
 
     // return
     //     - chunk - objectiveRepdegree > repdegree

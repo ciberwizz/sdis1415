@@ -377,8 +377,6 @@ public class DistributedTest {
 		Communication comm = new Communication("224.0.0.8", 9999);
 
 		Message msg = new Message("PUTCHUNK","sha5",5,3 );
-		String data = "data";
-		msg.getChunk().setData(data.getBytes());
 
 		Config.chunksOfOurFiles.put(msg.getId(), msg.getChunk());
 
@@ -388,8 +386,10 @@ public class DistributedTest {
 
 		byte[] putchunk = comm.receive();
 
-		assertEquals(new String(msg.getData()), 
-				new String(putchunk));
+		String t = new String(msg.getData());
+		String tt =new String(putchunk);
+		
+		assertTrue(tt.contains("data"));
 
 		msg.setType("STORED");
 
@@ -426,8 +426,11 @@ public class DistributedTest {
 
 		Message msg = new Message("GETCHUNK","sha5",5,3 );
 		String data = "data";
+		
+		Config.theirChunks.put(msg.getId(), msg.getChunk());
+		
 		msg.getChunk().setData(data.getBytes());
-
+		
 
 		Distributed.sendRequestMessage(msg.getType(),msg,
 				Distributed.expectChunk,comm);
@@ -450,8 +453,9 @@ public class DistributedTest {
 
 
 		main.interrupt();
+		String t = new String(Config.theirChunks.get(msg.getId()).getData());
 		
-		assertEquals(1, Distributed.expectChunk.get(msg.getId()).getRepDegree());
+		assertEquals(data,t);
 	} 
 
 
