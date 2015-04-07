@@ -16,6 +16,9 @@ import java.util.Set;
 
 public class Interface extends JPanel {
 
+	
+	public static JFrame jframe;
+	
     JTree tree = new JTree();
     private DefaultMutableTreeNode selectedNode;
     public DefaultMutableTreeNode root = new DefaultMutableTreeNode("Data");
@@ -142,6 +145,10 @@ public class Interface extends JPanel {
                 if (selectedNode != null)
                     try {
                         Config.restoreFile(selectedNode.toString());
+                        if(!Config.missingChunks.isEmpty()){
+                        	JOptionPane.showMessageDialog(jframe, "Faltam alguns chunks, espere um pouco e volte a tentar.");
+                        }
+                        
                         updateTree();
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
@@ -168,15 +175,15 @@ public class Interface extends JPanel {
 
 
     public static Interface runInterface() {
-        JFrame jFrame = new JFrame("Project");
-        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jframe = new JFrame("Project");
+        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Interface contentPane = new Interface();
         contentPane.setOpaque(true);
-        jFrame.setContentPane(contentPane);
+        jframe.setContentPane(contentPane);
 
-        jFrame.pack();
-        jFrame.setVisible(true);
+        jframe.pack();
+        jframe.setVisible(true);
         
         return contentPane;
     }

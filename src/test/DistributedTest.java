@@ -484,16 +484,11 @@ public class DistributedTest {
 		}
 
 
-//		main.interrupt();
+		main.interrupt();
 		String t = new String(Config.chunksOfOurFiles.get(m.getId()).getData());
 		
 		assertNotNull(t);
-		try {
-			Thread.sleep(50000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 	}
 	
 
