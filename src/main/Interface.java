@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Interface extends JPanel {
 
@@ -33,13 +35,18 @@ public class Interface extends JPanel {
 
         tree = new JTree(root);
 
-        JMenuItem item = new JMenuItem("Delete");
-        item.addActionListener(getDeleteActionListener());
-        menuFile.add(item);
+        JMenuItem itemf = new JMenuItem("Delete");
+        itemf.addActionListener(getDeleteActionListener());
+        menuFile.add(itemf);
 
-        JMenuItem item2 = new JMenuItem("Restore");
-        item2.addActionListener(getRestoreActionListener());
-        menuFile.add(item2);
+        JMenuItem itemf2 = new JMenuItem("Restore");
+        itemf2.addActionListener(getRestoreActionListener());
+        menuFile.add(itemf2);
+
+        JMenuItem itemc = new JMenuItem("Delete");
+        itemc.addActionListener(getDeleteChunkActionListener());
+        menuChunk.add(itemc);
+
 
         tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent arg0) {
@@ -49,6 +56,8 @@ public class Interface extends JPanel {
                         selectedNode = (DefaultMutableTreeNode) pathForLocation.getLastPathComponent();
                         if (selectedNode.getParent().toString().equals("Files"))
                             menuFile.show(tree, arg0.getX(), arg0.getY());
+                        else if(selectedNode.getParent().toString().equals("Chunks"))
+                            menuChunk.show(tree, arg0.getX(), arg0.getY());
                     } else{
                         selectedNode = null;
                     }
@@ -57,43 +66,52 @@ public class Interface extends JPanel {
             }
         });
 
-        JButton button1 = new JButton("Botao 1");
-        //button1.setActionCommand();
-        //button1.addActionListener(this);
+        JButton newFiles = new JButton("Look For New Files");
+        newFiles.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Config.newFileInPath();
+                updateTree();
+            }
+        });
 
+        /*
         JButton button2 = new JButton("Botao 2");
-        //button2.setActionCommand();
-        //button2.addActionListener(this);
+        button2.setActionCommand();
+        button2.addActionListener(this);
 
         JButton button3 = new JButton("Botao 3");
-        //button3.setActionCommand();
-        //button3.addActionListener(this);
-
+        button3.setActionCommand();
+        button3.addActionListener(this);
+*/
         tree.setPreferredSize(new Dimension(300, 150));
         add(tree, BorderLayout.CENTER);
 
         JPanel jPanel = new JPanel(new GridLayout(0, 3));
-        jPanel.add(button1);
-        jPanel.add(button2);
-        jPanel.add(button3);
+        jPanel.add(newFiles);
         add(jPanel, BorderLayout.SOUTH);
     }
 
     public void updateTree(){
         filesNode.removeAllChildren();
         chunksNode.removeAllChildren();
-        File filesFolder = new File("data/files");
-        File[] listOfFiles = filesFolder.listFiles();
-        File chunksFolder = new File("data/chunks");
-        File[] listOfChunks = chunksFolder.listFiles();
 
-        for (int i = 0; i < listOfFiles.length; i++)
-            if(listOfFiles[i].isFile())
-                filesNode.add(new DefaultMutableTreeNode(listOfFiles[i].getName()));
+        Set set = Config.numberOfChunks.keySet();
+        Set set2 = Config.chunksOfOurFiles.keySet();
 
-        for (int i = 0; i < listOfChunks.length; i++)
-            if(listOfChunks[i].isFile())
-                chunksNode.add(new DefaultMutableTreeNode(listOfChunks[i].getName()));
+        Iterator iterator = set.iterator();
+        Iterator iterator2 = set2.iterator();
+
+        while (iterator.hasNext())
+        {
+            Object o = iterator.next();
+            filesNode.add(new DefaultMutableTreeNode(o.toString()));
+        }
+
+        while (iterator2.hasNext())
+        {
+            Object o = iterator2.next();
+            chunksNode.add(new DefaultMutableTreeNode(o.toString()));
+        }
 
         tree.repaint();
         tree.updateUI();
@@ -130,6 +148,19 @@ public class Interface extends JPanel {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+            }
+        };
+    }
+
+
+    private ActionListener getDeleteChunkActionListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                if (selectedNode != null) {
+                    File auxFile = new File("data/chunks/" + selectedNode.toString());
+                    auxFile.delete();
+                    updateTree();
+                }
             }
         };
     }
