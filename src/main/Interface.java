@@ -158,6 +158,7 @@ public class Interface extends JPanel {
             public void actionPerformed(ActionEvent arg0) {
                 if (selectedNode != null) {
                     File auxFile = new File("data/chunks/" + selectedNode.toString());
+                    System.out.println(selectedNode.toString());
                     auxFile.delete();
                     updateTree();
                 }

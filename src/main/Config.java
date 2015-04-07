@@ -3,6 +3,7 @@ package main;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
+import javax.swing.*;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,6 +22,8 @@ public class Config {
     
     public static ConcurrentLinkedQueue<String> missingChunks = new ConcurrentLinkedQueue<String>();
     
+    public static int rDegree;
+
     private long reservedSpace;
     private long usedSpace;
     //private long freeSpace
@@ -64,6 +67,9 @@ public class Config {
         Set<String> a = new HashSet<String>(csvContent);
         Set<String> b = new HashSet<String>(folderContent);
         b.removeAll(a);
+            if(b.size()>0){
+                rDegree = Integer.parseInt(JOptionPane.showInputDialog("New files found. Set the replication degree:"));
+            }
         ArrayList<String> mainList = new ArrayList<String>();
         mainList.addAll(b);
 
@@ -108,7 +114,7 @@ public class Config {
             fileIdChunkNr = fileId + "_" + Integer.toString(nChunks - 1);
             outputStream = new FileOutputStream(new File("data/chunks",fileIdChunkNr));
             outputStream.write(chunkPartBytes);
-            chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), 0);
+            chunk = new Chunk(nChunks-1, fileId, receivedFile.getPath(), rDegree);
             chunksOfOurFiles.put(fileIdChunkNr, chunk);
             Parser.writeChunkToCsv(chunk);
             outputStream.flush();
@@ -259,5 +265,4 @@ public class Config {
 
 		
 	}
-
 }
