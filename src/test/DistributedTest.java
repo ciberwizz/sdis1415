@@ -458,6 +458,44 @@ public class DistributedTest {
 		assertEquals(data,t);
 	} 
 
+	
+	@Test
+	public void restore_getchunk(){
+		Thread main = thMain();
+
+		//MC
+		Communication comm = new Communication("224.0.0.7", 9999);
+
+		byte[] putchunk = comm.receive();
+
+		Message m = new Message(putchunk);
+		
+		System.out.println(m.getId());
+
+		m.setType("CHUNK");
+		m.getChunk().setPath("data/"+m.getId());
+
+		Distributed.inMDR.add(new Message(m.getData()));
+
+		try {
+			Thread.sleep(450);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+
+//		main.interrupt();
+		String t = new String(Config.chunksOfOurFiles.get(m.getId()).getData());
+		
+		assertNotNull(t);
+		try {
+			Thread.sleep(50000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 
 	public Thread thMain(){
 

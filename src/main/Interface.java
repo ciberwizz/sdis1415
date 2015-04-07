@@ -166,7 +166,7 @@ public class Interface extends JPanel {
     }
 
 
-    public static void runInterface() {
+    public static Interface runInterface() {
         JFrame jFrame = new JFrame("Project");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -176,6 +176,8 @@ public class Interface extends JPanel {
 
         jFrame.pack();
         jFrame.setVisible(true);
+        
+        return contentPane;
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException {

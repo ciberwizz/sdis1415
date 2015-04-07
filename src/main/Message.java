@@ -144,6 +144,23 @@ public class Message {
 		}
 		
 	}
+	
+	public Message(String _type, String _id){
+		String[] id = _id.split("_");
+		
+		type = _type;
+		fileId = id[0];
+		chunkNr = Integer.parseInt(id[1]);
+		
+		repDegree = 0;
+		objectiveRepDegree = 0;
+		
+		chunk = new Chunk(chunkNr, fileId, "", repDegree);
+		
+		arriveTime = System.currentTimeMillis();
+		objectiveTime = 0;
+		
+	}
 
 	public Chunk getChunk() {
 		return chunk;

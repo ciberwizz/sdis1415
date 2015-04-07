@@ -11,12 +11,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Config {
 
     public static ConcurrentHashMap<String, Chunk> chunksOfOurFiles = new ConcurrentHashMap<String, Chunk>();
     public static ConcurrentHashMap<String, Chunk> theirChunks = new ConcurrentHashMap<String, Chunk>();
     public static ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
+    
+    public static ConcurrentLinkedQueue<String> missingChunks = new ConcurrentLinkedQueue<String>();
+    
     private long reservedSpace;
     private long usedSpace;
     //private long freeSpace
@@ -122,6 +126,7 @@ public class Config {
     public static void restoreFile(String fileName) throws IOException, NoSuchAlgorithmException {
         int nChunks = numberOfChunks.get(fileName);
         ArrayList<File> cfile = new ArrayList<File>();
+        ArrayList<String> missingchunk = new ArrayList<String>();
         String fileId = toSHA256(fileName);
         byte chunkData[];
         InputStream inputStream = null;
@@ -129,9 +134,17 @@ public class Config {
 
         for (int i = 0; i < nChunks; i++) {
             File file = new File("data/chunks/"+fileId + "_" + i);
-            cfile.add(file);
+            if(file.exists())
+            	cfile.add(file);
+            else
+            	missingchunk.add(fileId + "_" + i);
         }
 
+        
+        if(missingchunk.size() > 0){
+        	missingChunks.addAll(missingchunk);
+        	return;
+        }
 
         for (File file : cfile) {
             inputStream = new FileInputStream(file);

@@ -51,7 +51,7 @@ public class Distributed {
 		//load csvs
 		Config.loadCSV();
 		
-		Interface.runInterface();
+		Interface interfc = Interface.runInterface();
 		
 		
 
@@ -328,6 +328,46 @@ public class Distributed {
 						toSendPutChunk.remove(n.getId());
 					}
 				}
+			
+			
+			
+			/*
+			 * 
+			 * check if there are missing chunks that need to do getchunk
+			 * 
+			 */
+			
+			if(!Config.missingChunks.isEmpty()){
+				String id =  Config.missingChunks.poll();
+				
+				if(id != null){
+					Message m = new Message("GETCHUNK", id);
+					sendRequestMessage(m.getType(),m,expectChunk,
+							new Communication(chMc, chMcPort));
+					
+					//if it wa the last one
+					if(Config.missingChunks.isEmpty()){
+						Thread th =  new Thread(){
+							@Override
+							public void run() {
+								super.run();
+								
+								try {
+									Thread.sleep(400);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+								
+								interfc.updateTree();
+								
+							}
+						};
+					}
+				}
+				
+			}
+			
+			
 			
 
 
