@@ -1,10 +1,8 @@
 package main;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class Chunk {
 	private int chunkNr;
@@ -119,25 +117,19 @@ public class Chunk {
 	}
 
 	public byte[] readFromFile(){
-		//TODO readFromFile(){
 
 		if(data != null){
 			return data;
 		} else {
-
-			if(path.equals("")){
-
+            if(path.equals("")){
 				path = "data/chunks/"+getId();
 			}
 
-
 			try {
 				FileInputStream in = new FileInputStream(path);
-
 				byte[] b = new byte[(int) in.getChannel().size()];
 
 				in.read(b);
-
 				in.close();
 
 				return b;
@@ -145,8 +137,6 @@ public class Chunk {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
-
 
 			return null;
 

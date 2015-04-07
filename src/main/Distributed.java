@@ -1,7 +1,6 @@
 package main;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream.PutField;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +27,6 @@ public class Distributed {
 	public static void main(String[] args) {
 
 		//DEBUG
-		//TODO REMOVE
 		String[] a = {"224.0.0.7", "9999", "224.0.0.8", "9999", "224.0.0.9", "9999"};
 		args = a;
 
@@ -46,14 +44,10 @@ public class Distributed {
 		String chMdr = args[4];
 		int chMdrPort =  Integer.parseInt(args[5]);
 		
-		
-		
 		//load csvs
 		Config.loadCSV();
 		
 		Interface interfc = Interface.runInterface();
-		
-		
 
 		Thread thMC = new Thread(new ThChannelRecv(chMc, chMcPort, inMC));
 		Thread thMDB = new Thread(new ThChannelRecv(chMdb, chMdbPort, inMDB));
@@ -145,9 +139,7 @@ public class Distributed {
 
 						sendResponseMessage("PUTCHUNK",t,toSendPutChunk, new Communication(chMdb, chMdbPort));
 					}
-
 					break;
-
 
 				default:
 
@@ -174,14 +166,11 @@ public class Distributed {
 						m.incRepDegree();
 						toSendPutChunk.replace(id, m);
 
-					} 
-
+					}
 
 					temp.setRepDegree(0);
 					toSendStore.put(id,temp);
 					sendResponseMessage("STORED",temp,toSendStore, new Communication(chMc, chMcPort));
-
-
 				}
 
 			}
@@ -468,7 +457,6 @@ public class Distributed {
 
 					}
 
-
 				}
 			}
 
@@ -550,13 +538,10 @@ public class Distributed {
 					default:
 						break;
 					}
-
-
 				}
 			}
 
 		};
-
 		th.start();
 	}
 

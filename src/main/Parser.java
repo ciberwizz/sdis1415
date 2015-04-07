@@ -6,7 +6,6 @@ import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 
 import java.io.*;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
@@ -151,6 +150,33 @@ public class Parser {
 		auxFile3.renameTo(nchunks);
 
 	}
+
+    public static void removeChunkFromCsv(String chunkName) throws IOException, NoSuchAlgorithmException {
+
+        File chunks = new File("csv/chunks.csv");
+        File auxFile = new File("csv/auxFile.csv");
+
+        CSVReader cvsReader = new CSVReader(new FileReader(chunks), ',', '\"', '@');
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(auxFile));
+
+        String[] row;
+
+        String[] parts = chunkName.split("_");
+        String part1 = parts[0];
+        String part2 = parts[1];
+
+        while ((row = cvsReader.readNext()) != null) {
+            if(row[1].equals(part1) && row[0].equals(part2)) continue;
+            else{
+                csvWriter.writeNext(row);}
+        }
+        csvWriter.close();
+        cvsReader.close();
+        chunks.delete();
+        auxFile.renameTo(chunks);
+
+    }
+
 
 	public static void mapCsvToHash(ConcurrentHashMap<String, Integer> numberOfChunks) throws IOException {
 

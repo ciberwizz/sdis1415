@@ -19,11 +19,8 @@ public class Config {
     public static ConcurrentHashMap<String, Chunk> chunksOfOurFiles = new ConcurrentHashMap<String, Chunk>();
     public static ConcurrentHashMap<String, Chunk> theirChunks = new ConcurrentHashMap<String, Chunk>();
     public static ConcurrentHashMap<String, Integer> numberOfChunks = new ConcurrentHashMap<String, Integer>();
-    
     public static ConcurrentLinkedQueue<String> missingChunks = new ConcurrentLinkedQueue<String>();
-    
     public static int rDegree;
-
     private long reservedSpace;
     private long usedSpace;
     //private long freeSpace
@@ -136,20 +133,20 @@ public class Config {
         String fileId = toSHA256(fileName);
         byte chunkData[];
         InputStream inputStream = null;
-        OutputStream outputStream = new FileOutputStream(new File("data/files/"+"retore_" +fileName));
+        OutputStream outputStream = new FileOutputStream(new File("data/files/"+"restored_" +fileName));
 
         for (int i = 0; i < nChunks; i++) {
             File file = new File("data/chunks/"+fileId + "_" + i);
             if(file.exists())
-            	cfile.add(file);
+                cfile.add(file);
             else
-            	missingchunk.add(fileId + "_" + i);
+                missingchunk.add(fileId + "_" + i);
         }
 
-        
+
         if(missingchunk.size() > 0){
-        	missingChunks.addAll(missingchunk);
-        	return;
+            missingChunks.addAll(missingchunk);
+            return;
         }
 
         for (File file : cfile) {
@@ -199,6 +196,26 @@ public class Config {
                 auxFile.delete();
             }
         }
+
+        file.delete();
+
+    }
+
+
+    public static void deleteChunk(String chunkName) throws NoSuchAlgorithmException, IOException {
+
+        File file = new File("data/files/"+chunkName);
+        Set set = chunksOfOurFiles.keySet();
+        Iterator iterator = set.iterator();
+
+        while (iterator.hasNext())
+        {
+            Object o = iterator.next();
+            if (o.toString().equals(chunkName))
+                chunksOfOurFiles.remove(o.toString());
+        }
+
+        Parser.removeChunkFromCsv(chunkName);
 
         file.delete();
 
