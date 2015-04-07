@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
@@ -16,9 +15,7 @@ import java.util.Set;
 
 public class Interface extends JPanel {
 
-	
-	public static JFrame jframe;
-	
+    public static JFrame jframe;
     JTree tree = new JTree();
     private DefaultMutableTreeNode selectedNode;
     public DefaultMutableTreeNode root = new DefaultMutableTreeNode("Data");
@@ -146,9 +143,8 @@ public class Interface extends JPanel {
                     try {
                         Config.restoreFile(selectedNode.toString());
                         if(!Config.missingChunks.isEmpty()){
-                        	JOptionPane.showMessageDialog(jframe, "Faltam alguns chunks, espere um pouco e volte a tentar.");
+                            JOptionPane.showMessageDialog(jframe, "There are some chunks missing. Wait a moment and try again, please.");
                         }
-                        
                         updateTree();
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
@@ -163,12 +159,15 @@ public class Interface extends JPanel {
     private ActionListener getDeleteChunkActionListener() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                if (selectedNode != null) {
-                    File auxFile = new File("data/chunks/" + selectedNode.toString());
-                    System.out.println(selectedNode.toString());
-                    auxFile.delete();
-                    updateTree();
-                }
+                if (selectedNode != null)
+                    try {
+                        Config.deleteChunk(selectedNode.toString());
+                        updateTree();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
             }
         };
     }
@@ -184,12 +183,8 @@ public class Interface extends JPanel {
 
         jframe.pack();
         jframe.setVisible(true);
-        
+
         return contentPane;
     }
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException {
-        Config.newFileInPath();
-        runInterface();
-    }
 }
