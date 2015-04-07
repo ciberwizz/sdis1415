@@ -51,8 +51,7 @@ public class Distributed {
 		//load csvs
 		Config.loadCSV();
 		
-		//check for new files and split them
-		Config.newFileInPath();
+		Interface.runInterface();
 		
 		
 
@@ -60,8 +59,10 @@ public class Distributed {
 		Thread thMDB = new Thread(new ThChannelRecv(chMdb, chMdbPort, inMDB));
 		Thread thMDR = new Thread(new ThChannelRecv(chMdr, chMdrPort, inMDR));
 
-		//TODO start threads
-
+		thMC.start();
+		thMDR.start();
+		thMDB.start();
+		
 
 		while(!Thread.currentThread().isInterrupted()){
 

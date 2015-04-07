@@ -166,7 +166,7 @@ public class Interface extends JPanel {
     }
 
 
-    private static void runInterface() {
+    public static void runInterface() {
         JFrame jFrame = new JFrame("Project");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
